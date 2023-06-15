@@ -1,0 +1,99 @@
+In this section we outline the algorithm for learning zeros of FPOs. But before that we go through the primary challenges and ways to mitigate them.
+
+\subsection{Unboundedness of the problem domain}\label{ssec-unbounded-domain} We can try the same procedure as outlined in section~\ref{sec-learning} to solve find a non-trivial zero of $\mathcal L$. But since computationally we can only deal with a bounded domain, we focus on a compact domain which contains most of the mass of the solution to \eqref{eq:SFPE-0}. We refer to this domain as the \textit{domain of interest} $\Omega_I$ in the following discussion. 
+
+
+\subsection{Existence of the trivial solution}\label{ssec-exist-0} $\mathcal L$, being  a linear operator, $\mathcal L0=0$. Since we want to find a non-trivial zero of $\mathcal L$, we would like avoid the learning the zero function during the training of the network. To deal with this problem \cite{zhai2022deep} added a regularization term that required solving \eqref{eq:SFPE-0} with Monte-Carlo first. Here we propose a method that does not require a priori knowing an approximate solution. Consider the operator $\mathcal L_{\rm log}$ instead.
+\begin{align}
+    \mathcal L_{\rm log}f \stackrel{\rm def}{=} e^{-f}\mathcal L e^f\label{eq:def-log-FPO}
+\end{align}
+Recalling \eqref{eq:log-transform-0} we see that,
+\begin{align}
+    \mathcal L_{\rm log}f=
+    -\nabla\cdot \mu - \mu \cdot \nabla f + D\left(\|\nabla f\|_2^2 + \Delta f\right)\label{eq:log-FPO}
+\end{align}
+Since $\nabla\cdot\mu\not\equiv0$, any constant function can not be a zero of $\mathcal L_{\rm log}$. $p$ is a zero of $\mathcal L$ iff either $p\equiv0$ or $\log p$ is a zero of $\mathcal L_{\rm log}$. So we can look for a zero of $\mathcal L_{\rm log}$ to find a non-trivial zero of $\mathcal L$.
+
+\subsection{The steady state algorithm}
+The procedure outlined in \ref{sec-learning} together with the modifications \ref{ssec-unbounded-domain}, \ref{ssec-exist-0} immediately yields the following  loss function.
+\begin{align}
+    L_{\log}=\frac{1}{N}\sum_{i=1}^N\mathcal L_{\rm log}(n_\theta(\mathbf x_i))^2\label{eq:def-steady-loss}
+\end{align}
+where $\{\mathbf x_i\}_{i=1}^N$ is a uniform sample from $\Omega_I$. Accordingly, the final procedure for finding a non-trivial zero of $\mathcal L$ is given in algorithm~\ref{algo:steady}.
+\begin{algorithm}[!ht]
+Sample $\{\mathbf x_i\}_{i=1}^N$ from $\Omega_I$, the domain of interest.\\
+Select the desired architecture for $n_\theta$.\\
+Select resampling interval $\tau$.\\
+Select an adaptive learning rate $\delta$ and the number of training iterations $E$.\\
+\For {$k=1,2\cdots, E$}{
+Compute $\nabla_\theta L_{\log}=\frac{1}{N}\sum_{i=1}^N\nabla_\theta(\mathcal{L}_{\log}(n_\theta(\mathbf x_i))^2)$\\
+where $\mathcal L_{\log}f = -\nabla\cdot \mu - \mu \cdot \nabla f + D\left(\|\nabla f\|_2^2 + \Delta f\right)$\\
+Update $\theta\leftarrow\theta - \delta\nabla_{\theta}L_{\log}$\\
+\If{$k\text{ is divisible by }\tau$}{Resample $\{\mathbf x_i\}_{i=1}^N$ from $\Omega_I$}
+}
+$e^{n_\theta(\mathbf x)}$ is a non-trivial zero of $\mathcal{L}$.\\
+Optional: Approximate $Z\leftarrow\int_{\mathbb R^d}e^{n_\theta(\mathbf x)}\,d\mathbf x$.
+$\frac{1}{Z}e^{n_\theta(\mathbf x)}$ is the learned, normalized steady state.
+\caption{The steady state algorithm}\label{algo:steady}
+\end{algorithm}
+In the following sections we describe in detail the network architecture and optimizer used in our experiments. 
+
+\subsection{Architecture}\label{ssec-architecture}
+We choose the widely used LSTM \cite{sherstinsky2020fundamentals}, \cite{vennerod2021long} architecture described below for our experiments. This type of architecture rose to prominence in deep learning because of their ability to deal with the vanishing gradient problem, see section IV of \cite{sherstinsky2020fundamentals}, section 2.2 of \cite{vennerod2021long}. A variant of this architecture has also been used to solve PDEs \cite{sirignano2018dgm}. This kind of architectures have been shown to be universal approximators \cite{schafer2006recurrent}. We choose this architecture simply because of how \textit{expressive} they are. By  expressivity of an architecture we imply its ability to approximate a wide range of functions and experts have attempted to formalize this notion in recent times \cite{lu2017expressive}, \cite{raghu2016survey},  \cite{raghu2017expressive}. There are architectures that are probability densities by design i.e. the normalization constraint in \eqref{eq:SFPE-0} is automatically satisfied for them, see for example \cite{uria2013rnade}, \cite{papamakarios2019neural}. But our experiments suggest these architectures are not expressive enough to learn solutions to PDEs since the normalization constraint makes their structure too rigid. Other than the difficulty in implementing the normalization constraint numerically, this is another reason why we choose to focus on learning a non-trivial zero of $\mathcal L$ rather than solving \eqref{eq:SFPE-0}. LSTM networks on the other hand are expressive enough to solve all the problems listed in section~\ref{sec-examples}.
+
+Below we define the our architecture in detail. Here $\mathbf 0_k$ implies a zero vector of dimension $k$.
+\begin{align}
+    i\in\{1,2,&\cdots, L\}\\
+    \mathtt c_0(\mathbf x)\stackrel{\rm def}{=}&\,\mathbf 0_m\label{eq:layer-c0}\\
+    \mathtt h_0(\mathbf x)\stackrel{\rm def}{=}&\,\mathbf 0_d\label{eq:layer-h0}\\
+    \mathtt f_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_f^{(i)}\mathbf x + \mathtt U_f^{(i)}h_{i-1}(\mathbf x) + \mathtt b_f^{(i)})\label{eq:layer-f}\\
+    \mathtt g_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_g^{(i)}\mathbf x + \mathtt U_g^{(i)}h_{i-1}(\mathbf x) + \mathtt b_g^{(i)})\label{eq:layer-g}\\
+    \mathtt r_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_r^{(i)}\mathbf x + \mathtt U_r^{(i)}h_{i-1}(\mathbf x) + \mathtt b_r^{(i)})\label{eq:layer-r}\\
+    \mathtt s_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_s^{(i)}\mathbf x + \mathtt U_s^{(i)}h_{i-1}(\mathbf x) + \mathtt b_s^{(i)})\label{eq:layer-s}\\
+    \mathtt c_i(\mathbf x) \stackrel{\rm def}{=}&  \mathtt f_i(\mathbf x)\odot \mathtt c_{i-1}(\mathbf x) + \mathtt g_i(\mathbf x)\odot s_i(\mathbf x)\label{eq:layer-c}\\
+    \mathtt h_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt r_i(\mathbf x)\odot \mathtt A(\mathtt c_i(\mathbf x))\label{eq:layer-h}\\
+    \mathtt d_L(\mathbf x)\stackrel{\rm def}{=}&\mathtt W^\top\mathbf x + \mathtt b\label{eq:layer-final}\\
+    n^{\rm LSTM}_\theta \stackrel{\rm def}{=}& \mathtt d_L\circ \mathtt h_L\label{eq:def-LSTM} 
+\end{align}
+Here $\{\mathtt f_i, \mathtt g_i, \mathtt r_i, \mathtt s_i, \mathtt c_i, \mathtt h_i: i=1,\cdots,L\}\cup\{\mathtt d_L\}$ are the hidden layers and
+\begin{align}
+    \theta=\{\mathtt W_f^{(i)}, \mathtt U_f^{(i)}, \mathtt b_f^{(i)}, \mathtt W_g^{(i)}, \mathtt U_g^{(i)}, \mathtt b_g^{(i)}, \mathtt W_r^{(i)}, \mathtt U_r^{(i)}, \mathtt b_r^{(i)}, \mathtt W_s^{(i)}, \mathtt U_s^{(i)}, \mathtt b_s^{(i)}:
+i=1,\cdots,L\}\cup\{\mathtt W, \mathtt b\}\label{eq:theta-composition}
+\end{align}is the set of the trainable parameters. The dimensions of these parameters are given below,
+\begin{align}
+   \mathtt W_f^{(i)}, 
+   \mathtt W_g^{(i)},  \mathtt W_r^{(i)},  \mathtt W_s^{(i)} \in&\;
+   \mathbb R^{m\times d}\\
+   \mathtt U_f^{(i)},
+\mathtt U_g^{(i)},
+\mathtt U_r^{(i)},
+\mathtt U_s^{(i)}\in&
+   \begin{cases}\mathbb R^{m\times d},\quad\text{ if }i=1 \\
+   \mathbb R^{m\times m},\quad\text{otherwise}
+   \end{cases}\\
+   \mathtt b_f^{(i)},\mathtt b_g^{(i)},\mathtt b_r^{(i)},\mathtt b_s^{(i)}\in&\;\mathbb R^m\\
+   \mathtt W\in\mathbb R^{m}, \mathtt b\in&\;\mathbb R
+\end{align}
+which implies the size of the network or cardinality of $\theta$ is
+\begin{align}
+    C=4m[d(L+1)+m(L-1)]+5m+1\label{eq:network-size}
+\end{align}
+Note that \eqref{eq:network-size} implies the size of the network grows only linearly with dimension which is an important factor for mitigating the curse of dimensionality. We use elementwise $\tanh$ as our activation function,
+\begin{align}
+    \mathtt A=\tanh\label{eq:activation-choice}
+\end{align}
+We use $m=50$ and $L=3$ for our experiments which implies our network has $6L+1=19$ hidden layers. We use the very popular Xavier or Glorot initialization \cite{glorot2010understanding}, \cite{datta2020survey} to initialize $\theta$. With that the description of our architecture is complete. 
+
+\subsection{Optimization}\label{ssec-optimization}
+In our experiments we use the ubiquitous Adam optimizer \cite{kingma2014adam} which is often used in the PDE solving literature \cite{han2018solving}, \cite{zhai2022deep}, \cite{sirignano2018dgm}. We use a piece-wise linear decaying learning rate. Below $k$ denotes the training iteration and $\delta(k)$ is the learning rate.
+\begin{align}
+    \delta(k)=\begin{cases}
+        5\times10^{-3},\quad\text{if } k<1000
+        \\
+        1\times10^{-3},\quad\text{if }1000\le k<2000\\
+        5\times10^{-4},\quad\text{if }2000\le k<10000\\
+        1\times10^{-4},\quad\text{if }k\ge10000\\
+        \end{cases}\label{eq:learning-rate}
+\end{align}
+We stop training after reaching a certain number of iterations $E$ which varies depending on the problem. In all our experiments we use $N=1000$ as the sample size and $\tau=10$ as the resampling interval for algorithm~\ref{algo:steady}.
+

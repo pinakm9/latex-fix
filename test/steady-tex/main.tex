@@ -1,0 +1,99 @@
+\documentclass[reqno]{siamart220329}
+\usepackage[english]{babel}
+\usepackage{lipsum}%
+\makeatletter
+
+\newcommand{\authorfootnotes}{\renewcommand\thefootnote{\@fnsymbol\c@footnote}}%
+\makeatother
+\usepackage{etoolbox} %
+
+
+\newcommand*\linenomathpatch[1]{%
+  \cspreto{#1}{\linenomath}%
+  \cspreto{#1*}{\linenomath}%
+  \csappto{end#1}{\endlinenomath}%
+  \csappto{end#1*}{\endlinenomath}%
+}
+
+\linenomathpatch{equation}
+\linenomathpatch{gather}
+\linenomathpatch{multline}
+\linenomathpatch{align}
+\linenomathpatch{alignat}
+\linenomathpatch{flalign}
+
+
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{centernot}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[algo2e]{algorithm2e}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{defn}[thm]{Definition}
+
+\usepackage{fullpage}
+\usepackage{lineno}
+
+\usepackage{url}
+
+
+
+\usepackage{color}
+\newcommand{\amit}[1]{\textcolor{magenta}{#1}}
+
+\title{Learning zeros of Fokker-Planck operators}
+
+
+\begin{document}
+
+
+\maketitle
+
+ {\normalsize
+ \centering
+  \authorfootnotes
+  Pinak Mandal\footnote{\thanks{Corresponding author: \texttt{pinak.mandal@icts.res.in}}}\textsuperscript{1}, Amit Apte\textsuperscript{1,2}
+
+  \textsuperscript{1} International Centre for Theoretical Sciences - TIFR, Bangalore 560089 India \par
+  \textsuperscript{2}Indian Institute of Science Education and Research, Pune 411008 India\par \bigskip}
+
+\begin{abstract}
+In this paper we devise a deep learning algorithm to find non-trivial zeros of Fokker-Planck operators when the drift is non-solenoidal. We demonstrate the efficacy of our algorithm for problem dimensions ranging from 2 to 10. Our method scales linearly with dimension in memory usage. We show that this method produces better approximations compared to Monte Carlo methods, for the same overall sample sizes, even in low dimensions. Unlike the Monte Carlo methods, our method gives a functional form of the solution. We also demonstrate that the associated loss function is strongly correlated with the distance from the true solution, thus providing a strong numerical justification for the algorithm. Moreover, this relation seems to be linear asymptotically for small values of the loss function.
+\end{abstract}
+
+
+
+
+\section{Introduction}\label{sec-intro}\input{steady-tex/intro}
+
+\section{Problem statement}
+\label{sec-prob}\input{steady-tex/problem}
+
+\section{Previous works}\label{sec-prev-work}\input{steady-tex/prev-work}
+
+\section{Overview of deep learning}
+\label{sec-learning}
+\input{steady-tex/learning}
+
+\section{The algorithm}
+\label{sec-algo}\input{steady-tex/algo}
+
+\section{Results}\label{sec-steady-res}
+\input{steady-tex/results}
+
+
+\section{Conclusions}
+\label{sec-conclusions}
+\input{steady-tex/conclusions}
+
+\section{Appendix}
+\label{sec-appendix}
+\input{steady-tex/appendix}
+
+
+\bibliographystyle{siamplain}
+\bibliography{ref}
+\end{document}

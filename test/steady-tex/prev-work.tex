@@ -1,0 +1,21 @@
+An extensive amount of work has been done on the topic of numerically solving Fokker-Planck equations. A large amount of these works are based on traditional PDE solving techniques like finite difference \cite{berezin1987conservative}, \cite{whitney1970finite}, \cite{sepehrian2015numerical} and finite element \cite{naprstek2014finite}, \cite{masud2005application} methods. For a comparison of these traditional methods the reader can look at this comparative study \cite{pichler2013numerical} by Pitcher et al where the methods have been applied to 2 and 3 dimensional examples. 
+
+
+In recent times efforts have been made to devise methods that are applicable in dimensions higher than 3. Tensor decomposition methods  \cite{Hackbusch2005HierarchicalKT}, \cite{kolda2009tensor} are an important toolkit while dealing with high-dimensional problems and they are proving to be useful in designing numerical solvers for PDEs \cite{ballani2013projection}, \cite{kressner2010krylov}.  For stationary Fokker-Planck equations Sun and Kumar proposed a tensor decomposition and Chebyshev spectral differentiation based method \cite{sun2014numerical} in 2014. In this method drift functions are approximated with a sum of functions that are separable in spatial variables, an well-established paradigm for solving PDEs. The differential operator for the stationary FPE is then discretized and finally a least sqaures problem is solved to find the final solution. The normalization is enforced via addition of a  penalty term in the optimization problem. The high-dimensional integral for the normalization constraint in this method is replaced with  products of one dimensional integrals and therefore becomes computable.   
+
+In 2017 Chen and Majda proposed another hybrid method \cite{chen2018efficient} that utilizes both kernel and sample based density approximation to solve FPEs that originate from a specific type of SDE referred to as a conditional Gaussian model,
+\begin{equation}
+\begin{aligned}
+    d\mathbf{u_I} = [A_0(t, \mathbf{u_I}) + A_1(t, \mathbf{u_I})\mathbf{u_{II}}]\,dt + \Sigma_I(t, \mathbf{u_I})\,dW_I(t)\\
+    d\mathbf{u_{II}} = [a_0(t, \mathbf{u_I}) + a_1(t, \mathbf{u_I})\mathbf{u_{II}}]\,dt + \Sigma_{II}(t, \mathbf{u_I})\,dW_{II}(t)\label{eq:conditional-Gaussian-SDE}
+\end{aligned}
+\end{equation}
+This special structure of the SDE allows one to approximate $p(\mathbf{u_{II}}(t))$ as a Gaussian mixture with parameters that satisfy auxiliary SDEs. $p(\mathbf{u_I}(t))$ is approximated with a non-parametric kernel based method. Finally the joint distribution $p(\mathbf{u_I}(t), \mathbf{u_{II}}(t))$ is computed with a hybrid expression. Using this method Chen and Majda computed the solution to a 6 dimensional conceptual model for turbulence. Note that, among our examples only L63 falls under this special  structure.
+
+In recent years machine learning has also been applied to solve SFPEs. In 2019 Xu et al solved  2 and 3 dimensional stationary FPEs with deep learning \cite{xu2020solving}. Their method enforced normalization via a penalty term in the loss function that represented a Monte-Carlo estimate of the solution integrated over $\mathbb R^d$. Although simple and effective in lower dimensions, this normalization strategy loses effectiveness in higher dimensions. Zhai et al \cite{zhai2022deep} have proposed a combination of deep learning and Monte-Carlo method to solve stationary FPEs. The normalization constraint here is replaced with a regularizing term in the loss function which tries to make sure the final solution is close to a pre-computed Monte-Carlo solution. This strategy is more effective than having to approximate high-dimensional integrals and the authors successfully apply their method on Chen and Majda's 6 dimensional example.
+
+
+
+
+
+
