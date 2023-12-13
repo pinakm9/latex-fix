@@ -13,7 +13,7 @@ from bibtexparser.bibdatabase import BibDatabase
 
 
 class Fixer:
-    def __init__(self, root_folder, mode='clear'):
+    def __init__(self, root_folder, mode=None):
         self.root = root_folder
         self.chapters = []
         self.folders = []
@@ -36,7 +36,10 @@ class Fixer:
                 if mode == 'clear':
                     os.remove(f.path)
         
-        # rearrange files
+        # combine bib files
+        self.combine_bib(root_folder)
+        
+        # rearrange files and cleanup
         for i, folder in enumerate(self.folders):
             self.move_files(self.find_tex(folder), folder)
             self.move_files(self.find_img(folder), folder + '/plots')
@@ -46,9 +49,13 @@ class Fixer:
                     data = file.read()
                 title = re.findall(r'\\title{[^}]+}', data)[0]
                 sections = re.findall(r'\\section[^#]+end{document', data)[0]
+                biblio =  re.findall(r'\\bibliography[^{]*{[^}]*}', data)
                 new_data = title.replace('title', 'chapter') + '\n' + sections[:-13]
+                for text in biblio:
+                    new_data = new_data.replace(text, '')
                 with open(folder + '/main.tex', 'w') as file:
                     file.write(new_data)
+            
 
 
         # fix all references in latex files
@@ -56,8 +63,10 @@ class Fixer:
             self.fix_all_refs(folder, ext='.tex', tag='--' + self.chapters[i])
             self.fix_all_paths(folder, ext='.tex', tag=self.chapters[i])
             self.fix_paper(folder)
+            for other_file in self.find_other(folder, ['.cls', '.bst', '.bib']):
+                os.remove(other_file)
         
-        self.combine_bib(root_folder)
+        
 
         # fix all file-paths in latex files:
 
@@ -122,6 +131,12 @@ class Fixer:
     
     def find_img(self, folder):
         return list(map(str, Path(folder).rglob('*.png'))) + list(map(str, Path(folder).rglob('*.jpg'))) 
+    
+    def find_other(self, folder, exts):
+        files = []
+        for ext in exts:
+            files += list(map(str, Path(folder).rglob('*' + ext)))
+        return  files
     
     def move_files(self, files, new_folder):
         if not os.path.exists(new_folder):
