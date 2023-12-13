@@ -1,63 +1,203 @@
 import os
-import re 
-
-folder = '../test/steady-tex'
-
-
-def find_files(folder, ext):
-    files = []
-    for file in os.listdir(folder):
-        if file.endswith(ext):
-            files.append(folder + '/' + file) 
-    return files
+import re
+import zipfile 
+import shutil
+import utility as ut
+import glob
+from pathlib import Path
 
 
-def search_file(file):
-    with open(file) as f:
-        data = f.read()
-        refs = re.findall(r'ef{[^}]+}', data)
-        labels = re.findall(r'label{[^}]+}', data)
-    return refs, labels
+class Fixer:
+    def __init__(self, root_folder, mode='clear'):
+        self.root = root_folder
+        self.chapters = []
+        self.folders = []
+        self.types = {'plots': ['.png', '.jpg'], 'tex': ['.tex'], }
+
+        if mode == 'clear':
+            # remove all non-zip folders
+            for f in os.scandir(root_folder):
+                if f.is_dir():
+                    shutil.rmtree(f.path)
+        
+        # unzip all zip files and remove them
+        for f in os.scandir(root_folder):
+            if f.path.endswith('.zip'):
+                with zipfile.ZipFile(f.path, 'r') as zip_ref:
+                    zip_ref.extractall(f.path[:-4])
+                self.chapters.append(os.path.basename(f.path)[:-4])
+                self.folders.append(f.path[:-4])
+                if mode == 'clear':
+                    os.remove(f.path)
+        
+        # rearrange files
+        for i, folder in enumerate(self.folders):
+            self.move_files(self.find_tex(folder), folder)
+            self.move_files(self.find_img(folder), folder + '/plots')
+            self.remove_empty(folder)
+            if os.path.exists(folder + '/main.tex'):
+                with open(folder + '/main.tex', 'r') as file:
+                    data = file.read()
+                title = re.findall(r'\\title{[^}]+}', data)[0]
+                sections = re.findall(r'\\section[^#]+end{document', data)[0]
+                new_data = title.replace('title', 'chapter') + '\n' + sections[:-13]
+                with open(folder + '/main.tex', 'w') as file:
+                    file.write(new_data)
 
 
-def fix(file, refs, labels, tag):
-    with open(file) as f:
-        data = f.read()
-        for ref in refs:
-            data = data.replace(ref, ref[:-1] + tag + '}')
-        for label in labels:
-            data = data.replace(label, label[:-1] + tag + '}')
-    with open(file, 'w') as f:
-        f.write(data)
+        # fix all references in latex files
+        for i, folder in enumerate(self.folders):
+            self.fix_all_refs(folder, ext='.tex', tag='--' + self.chapters[i])
+            self.fix_all_paths(folder, ext='.tex', tag=self.chapters[i])
+
+        # fix all file-paths in latex files:
+
+        
+        print(self.chapters)
+
+    
+
+    def find_tex(self, folder):
+        return list(map(str, Path(folder).rglob('*.tex')))
+    
+    def find_img(self, folder):
+        return list(map(str, Path(folder).rglob('*.png'))) + list(map(str, Path(folder).rglob('*.jpg'))) 
+    
+    def move_files(self, files, new_folder):
+        if not os.path.exists(new_folder):
+            os.makedirs(new_folder)
+        for file in files:
+            shutil.move(file, new_folder + f'/{os.path.basename(file)}')
+
+    def remove_empty(self, folder):
+        folders = list(os.walk(folder))[1:]
+        for folder in folders:
+            if not folder[2]:
+                os.rmdir(folder[0])
+
+    def find_files(self, folder, ext):
+        files = []
+        for file in os.listdir(folder):
+            if file.endswith(ext):
+                files.append(folder + '/' + file) 
+        return files
+
+    def search_refs(self, file):
+        with open(file) as f:
+            data = f.read()
+            refs = re.findall(r'ref{[^}]+}', data)
+            labels = re.findall(r'label{[^}]+}', data)
+        return refs, labels
+    
+    def search_paths(self, file):
+        with open(file) as f:
+            data = f.read()
+            tex_paths = re.findall(r'input{[^}]+}', data)
+            img_paths = re.findall(r'includegraphics[^{]*{[^}]+}', data)
+        return tex_paths, img_paths
+    
+    def fix_refs(self, file, refs, labels, tag):
+        with open(file) as f:
+            data = f.read()
+            for ref in refs:
+                data = data.replace(ref, ref[:-1] + tag + '}')
+            for label in labels:
+                data = data.replace(label, label[:-1] + tag + '}')
+        with open(file, 'w') as f:
+            f.write(data)
+
+    def fix_paths(self, file, tex_paths, img_paths, tag):
+        with open(file) as f:
+            data = f.read()
+            for path in tex_paths:
+                left, right = path.index('{'), path.index('}')
+                file_ = os.path.basename(path[left+1:right])
+                data = data.replace(path, path[:left+1] + tag + '/' + file_ + path[right:])
+            for path in img_paths:
+                left, right = path.index('{'), path.index('}')
+                file_ = os.path.basename(path[left+1:right])
+                data = data.replace(path, path[:left+1] + tag + '/plots/' + file_ + path[right:])
+        with open(file, 'w') as f:
+            f.write(data)
+
+    @ut.timer
+    def fix_all_refs(self, folder, ext, tag):
+        files = self.find_files(folder, ext)
+        for file in files:
+            refs, labels = self.search_refs(file)
+            self.fix_refs(file, refs, labels, tag)
+
+    @ut.timer
+    def fix_all_paths(self, folder, ext, tag):
+        files = self.find_files(folder, ext)
+        for file in files:
+            tex_paths, img_paths = self.search_paths(file)
+            self.fix_paths(file, tex_paths, img_paths, tag)
+          
+
+
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# folder = '../test/steady-tex'
+
+
+
+
+
+
+
+
+
         
 
-def unfix(file, refs, labels, tag):
-    with open(file) as f:
-        data = f.read()
-        for ref in refs:
-            data = data.replace(ref, ref[:-1][:-len(tag)] + '}')
-        for label in labels:
-            data = data.replace(label, label[:-1][:-len(tag)] + '}')
-    with open(file, 'w') as f:
-        f.write(data)
+# def unfix(file, refs, labels, tag):
+#     with open(file) as f:
+#         data = f.read()
+#         for ref in refs:
+#             data = data.replace(ref, ref[:-1][:-len(tag)] + '}')
+#         for label in labels:
+#             data = data.replace(label, label[:-1][:-len(tag)] + '}')
+#     with open(file, 'w') as f:
+#         f.write(data)
 
 
-def fixall(folder, ext, tag):
-    files = find_files(folder, ext)
-    for file in files:
-        refs, labels = search_file(file)
-        fix(file, refs, labels, tag)
+# def fixall(folder, ext, tag):
+#     files = find_files(folder, ext)
+#     for file in files:
+#         refs, labels = search_file(file)
+#         fix(file, refs, labels, tag)
 
-def unfixall(folder, ext, tag):
-    files = find_files(folder, ext)
-    for file in files:
-        refs, labels = search_file(file)
-        unfix(file, refs, labels, tag)
+# def unfixall(folder, ext, tag):
+#     files = find_files(folder, ext)
+#     for file in files:
+#         refs, labels = search_file(file)
+#         unfix(file, refs, labels, tag)
 
-# file = find_files(folder, 'tex')[-1]
-# refs, labels = search_file(file)
-# print(refs)
-# print(labels)
-# unfix(file, refs, labels, '-chapter3')
+# # file = find_files(folder, 'tex')[-1]
+# # refs, labels = search_file(file)
+# # print(refs)
+# # print(labels)
+# # unfix(file, refs, labels, '-chapter3')
 
-unfixall(folder, 'tex', '--ch3')
+# unfixall(folder, 'tex', '--ch3')

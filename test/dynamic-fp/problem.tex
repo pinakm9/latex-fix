@@ -1,0 +1,30 @@
+\subsection{Time-dependent FPEs}
+Consider the Itô SDE with coefficients $\mu\in C^1(\mathbb R^d;\mathbb R^d)$ and $\sigma\in C(\mathbb R^d; \mathbb R^{d\times l})$ that are independent of time,
+\begin{equation}
+\begin{aligned}
+    dX_t &= \mu(X_t)\,dt + \sigma(X_t)\,dW_t\\
+    X_0&\sim p_0\label{eq:SDE-0--dynamic-fp}
+\end{aligned}
+\end{equation}
+such that $D=\frac{1}{2}\sigma\sigma^\top$ is a positive definite matrix for all inputs. Such an SDE is directly related to the Fokker-Planck equation describing the evolution of the probability density of $X_t$ \cite{risken1996fokker}, \cite{bogachev2022fokker}, \cite{bris2008existence},
+\begin{equation}
+\begin{aligned}
+    &\frac{\partial p}{\partial t} = \mathcal Lp \stackrel{\rm def}{=}
+  -\nabla \cdot(\mu p) + {\rm tr}(D\odot\nabla^2p)=0,\qquad\mathbf x\in\mathbb R^d,\; t\in(0, T]\\
+  &p(0, \mathbf x) = p_0(\mathbf x),\qquad\mathbf x\in\mathbb R^d\\
+  &\int_{\mathbb R^d}p(t, \mathbf x)\,d\mathbf x = 1,\qquad t\in[0, T] 
+\label{eq:FPE-0--dynamic-fp}
+\end{aligned}
+\end{equation}
+where $\odot$ is the Hadamard product and $\nabla^2$ denotes Hessian. The operator $\mathcal L$ is known as the Fokker-Planck operator (FPO). Our goal is to solve \eqref{eq:FPE-0--dynamic-fp} in a mesh-free way in high-dimensions. In our examples we stick to $\sigma \equiv cI_d$ for some $c>0$ which lets us abuse notation and use $\sigma$ and $D$ as scalar quantities, note that however our final method can be easily applied to problems where $\sigma$ is indeed a function of space or non-diagonal with minor modifications. With this simplification \eqref{eq:FPE-0--dynamic-fp} becomes,
+\begin{align}
+    \frac{\partial p}{\partial t}=
+  -\nabla \cdot(\mu p) + D\Delta p=0\label{eq:FPE-1--dynamic-fp}
+\end{align}
+where $\Delta$ is the Laplacian operator. An extensive amount of work has been done to find numerical solutions to FPEs over the years, for a brief overview the reader can see section 4 of \cite{mandal2023learning}.  
+\subsection{One step filtering problem}\label{ssec-1-filter-prob--dynamic-fp}
+Suppose we partially observe $X_t$ at discrete times $t=g, 2g,3g,\cdots$ with observation gap $g$. These observations are given by, 
+\begin{align}
+    y_k  = Hx_k + \eta_k,\qquad k=1,2,\cdots\label{eq:filtering-obs--dynamic-fp}
+\end{align}
+where $x_k = X_{kg}$, $H:\mathbb R^d\to\mathbb R^q$ is a projection matrix and $\eta_k\sim\mathcal N(0_q, \sigma_o^2I_q)$ are iid Gaussian errors in observation. Given all the observations up to time $t=gk$, the filtering problem asks us to compute the distribution of the state vector at that time i.e. $p(x_k|y_{1:k})$. Here, as a simple application, we will calculate the one-step filtering density $p(x_1|y_1)$.

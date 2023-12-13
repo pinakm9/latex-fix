@@ -1,0 +1,22 @@
+\subsection{Existence and uniqueness of solutions to example problems}\label{ssec-unique--dynamic-fp} Since appropriately scaling $t,\mu$ we can change \eqref{eq:FPE-1--dynamic-fp} to have unit diffusion, according to section 1 of \cite{bogachev2021uniqueness} and theorem 9.4.6 and example 9.4.7 of \cite{bogachev2022fokker} it suffices to prove that $\exists\, C>0$ such that
+\begin{align}
+    \mu\cdot \mathbf x \le C+C\|\mathbf x\|_2^2\,,\qquad\forall\;\mathbf x\in\mathbb R^d
+\end{align}
+in order to confirm the existence of a unique solution to \eqref{eq:FPE-0--dynamic-fp}. 
+
+It is easy to check that the above condition is satisfied for the drift terms for each of the examples discussed in section~\ref{sec-example--dynamic-fp}. For the 2D ring system in~\eqref{eq:ring2D--dynamic-fp}, we note that $\mu\cdot\mathbf x= -4r^2(r^2-1)\le 1$, using the fact that the function $f(x)=x(1-x)$ achieves global maximum at $x=\frac{1}{2}$, so we can choose $C = 1$. For the noisy L63 system defined by \eqref{eq:mu-L63--dynamic-fp} we have $\mu\cdot\mathbf x =-\alpha x^2-y^2-\beta z^2+(\alpha+\rho) xy\le (\alpha+\rho)r^2$ so it suffices to set $C=(\alpha+\rho)$. Lastly, for the noisy Thomas system defined by \eqref{eq:mu-Thomas--dynamic-fp} we have $\mu\cdot\mathbf x =-br^2 + x\sin y + y\sin z + z\sin x \le 3r\le 3+3r^2$, therefore $C=3$ is a suitable choice.
+
+
+\subsection{Monte Carlo algorithm}\label{ssec-algo-MC--dynamic-fp}
+The relationship between \eqref{eq:SDE-0--dynamic-fp} and \eqref{eq:FPE-0--dynamic-fp}  \cite{risken1996fokker}, \cite{bogachev2022fokker} gives us the following way of estimating solutions of Fokker-Planck equations. We can evolve multiple particles according to \eqref{eq:SDE-0--dynamic-fp} up to time $t$ using Euler-Maruyama method \cite{kloeden1992stochastic}, subdivide the domain $\mathcal D$ into $d$-dimensional boxes and count the how many particles lie inside each box to compute the probability density at the centers of these boxes. Here $\mathcal N$ denotes the multivariate normal distribution.
+%%%%%%
+\begin{algorithm}[!htp]
+Sample $\{ X_0^{(i)}\}_{i=1}^N\sim p_0$.\\
+Set the time-step $h=\frac{t}{M}$.\\
+\For {$j=1,2\cdots, M$}{
+ Sample $w^i_k\sim\mathcal N(\mathbf 0_d, h I_d)\;\;\forall\;i$\\
+ $ X_k^{(i)}\leftarrow  X_{k-1}^{(i)} + \mu\left(X_{k-1}^{(i)}\right)h + \sigma w_k^i\;\;\forall\;i$\\
+}
+Subdivide the domain of interest $\mathcal D$ into $d$-dimensional boxes.\\ Count the number of $X^{(i)}_{S}$ that are in a box to estimate the probability density at the center of the box.
+\caption{Monte Carlo algorithm}\label{algo:MC--dynamic-fp}
+\end{algorithm}

@@ -1,0 +1,18 @@
+Following the discussion in section~\ref{ssec-Feynman-Kac--dynamic-fp} we propose the following hybrid algorithm~\ref{algo:hybrid--dynamic-fp} for solving \eqref{eq:FPE-0--dynamic-fp} in high dimensions which uses the powers of both deep learning and the Feynman-Kac formula. In order to generate trajectories of the h-SDE \eqref{eq:ito-time-homo--dynamic-fp} we will use some time-discretized scheme like Euler-Maruyama or Milstein \cite{kloeden1992stochastic}. Just as in the prequel \cite{mandal2023learning}, we will restrict ourselves to computing the solution on a finite domain $\mathcal D$ where almost all the probability mass lies throughout $t\in[0, T]$. Besides the space-time boundaries $\mathcal D, T$, algorithm~\ref{algo:hybrid--dynamic-fp} has two other hyperparameters $M,N$ describing the time-discretization for Euler-Maruyama and the sample-size for estimating the Feynman-Kac expectation respectively.
+
+\begin{algorithm}[!ht]
+\begin{enumerate}
+    \item Choose $\mathcal D, T, M, N$ according to the PDE and available computational resources.
+    \item Use a known analytic zero of $\mathcal L$ or compute $p_\infty$ according to algorithm~6.1 in \cite{mandal2023learning}.
+    \item Pick $t\in[0, T]$ and $\mathbf x\in\mathcal D$. Generate $N$ trajectories of the SDE given by, 
+    \begin{align*}
+        dX_\tau = (\sigma^2\nabla \log p_\infty - \mu)\,d\tau + \sigma\,dW_\tau
+    \end{align*}
+    starting from $\mathbf x$ and running till time $t$ with Euler-Maruyama method. Suppose the trajectories are computed at times $0=\tau_0<\tau_1<\cdots<\tau_M=t$. Let $X^{(i)}_{j}$ denote the $j$-th point (in time) in the $i$-th trajectory.
+    \item Approximate $p(\tau_j, \mathbf x)$ with the following quantity, \begin{align*}
+        \frac{p_\infty(\mathbf x)}{N}\sum_{i=1}^N\frac{p_0(X^{(i)}_{j})}{p_\infty(X^{(i)}_{j})}
+    \end{align*}
+    \end{enumerate}
+    \caption{The $p_\infty$+FK algorithm}\label{algo:hybrid--dynamic-fp}
+\end{algorithm}
+    
