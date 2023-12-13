@@ -5,6 +5,11 @@ import shutil
 import utility as ut
 import glob
 from pathlib import Path
+import bibtexparser as bib
+from bibtexparser.bparser import BibTexParser
+from bibtexparser.bwriter import BibTexWriter
+from bibtexparser.bibdatabase import BibDatabase
+
 
 
 class Fixer:
@@ -13,6 +18,7 @@ class Fixer:
         self.chapters = []
         self.folders = []
         self.types = {'plots': ['.png', '.jpg'], 'tex': ['.tex'], }
+
 
         if mode == 'clear':
             # remove all non-zip folders
@@ -49,16 +55,70 @@ class Fixer:
         for i, folder in enumerate(self.folders):
             self.fix_all_refs(folder, ext='.tex', tag='--' + self.chapters[i])
             self.fix_all_paths(folder, ext='.tex', tag=self.chapters[i])
+            self.fix_paper(folder)
+        
+        self.combine_bib(root_folder)
 
         # fix all file-paths in latex files:
 
-        
-        print(self.chapters)
 
+
+    
+    
+    
+    def fix_paper(self, folder):
+        for tex_file in self.find_tex(folder):
+            with open(tex_file, 'r') as file:
+                data = file.read().replace('this paper', 'this chapter')
+            with open(tex_file, 'w') as file:
+                file.write(data)
+            
+                
+    def read_bib(self, folder):
+        data = ''
+        for bib_file in self.find_bib(folder):
+            with open(bib_file, 'r') as file:
+                data += '\n' + file.read()
+        parser = BibTexParser(common_strings=False)
+        parser.ignore_nonstandard_types = False
+        parser.homogenise_fields = False 
+        bib_database = bib.loads(data, parser)
+        return bib_database.entries
+    
+
+    
+    def prune_bib(self, entries):
+        all_ids = sorted(list(set([entry['ID'] for entry in entries])), key=str.casefold)
+        # print(all_ids)
+        new_entries = []
+        for ID in all_ids:
+            for entry in entries:
+                if entry['ID'] == ID:
+                    new_entries.append(entry)
+                    break
+        return new_entries
+    
+    @ut.timer
+    def combine_bib(self, folder):
+        db = BibDatabase()
+        db.entries = self.prune_bib(self.read_bib(folder))
+        writer = BibTexWriter()
+        writer.indent = '    '     # indent entries with 4 spaces instead of one
+        # writer.comma_first = True  # place the comma at the beginning of the line
+        with open(f'{folder}/ref-combined.bib', 'w') as bibfile:
+            bibfile.write(writer.write(db))
+        print(f'Number of unique entries written = {len(db.entries)}')
+
+    
+    
+                
     
 
     def find_tex(self, folder):
         return list(map(str, Path(folder).rglob('*.tex')))
+    
+    def find_bib(self, folder):
+        return list(map(str, Path(folder).rglob('*.bib')))
     
     def find_img(self, folder):
         return list(map(str, Path(folder).rglob('*.png'))) + list(map(str, Path(folder).rglob('*.jpg'))) 

@@ -1,0 +1,159 @@
+\subsection{Existence and uniqueness of solutions to example problems}\label{ssec-unique--steady-fp} In this section we prove that the example problems used here have a unique weak solution in $W^{1,2}_{\rm loc}(\mathbb R^d)$.
+ We employ the method of Lyapunov function as described in \cite{huang2015steady} to arrive at existence and uniqueness. First we begin with the prerequisites for this approach.
+ \subsubsection{Lyapunov functions}
+\begin{defn}
+    Let $U \in C(\mathcal U)$ be a non-negative function and denote $\rho_M = \sup_{\mathbf x\in \mathcal U} U(\mathbf x)$,
+called the essential upper bound of $U$. $U$ is said to be a compact function in $U$ if
+\begin{align}
+i)\; U (\mathbf x) < \rho_M,\quad \mathbf x \in \mathcal U
+\end{align}
+and
+\begin{align}
+ii) \lim_{\mathbf x\to\partial U} U (\mathbf x) = \rho_M 
+\end{align}
+\end{defn} This definition of a compact function appears as definition 2.2 in \cite{huang2015steady}.
+\begin{prop}
+An unbounded, non-negative function $U\in C(\mathbb R^d)$ is compact iff 
+\begin{align}
+    \lim_{\|\mathbf \mathbf x\|_2\to+\infty} U(\mathbf x) = +\infty
+\end{align}
+\end{prop}
+This proposition appears as proposition 2.1 in \cite{huang2015steady}.
+
+\begin{defn}
+    Let $U$ be a compact function in $C^2(\mathcal U)$ with essential upper bound $\rho_M$. $U$ is called a Lyapunov function in $\mathcal U$ with respect to $\mathcal L^*$ is $\exists\,\rho_m\in(0, \rho_M)$ and a constant $\gamma>0$ such that
+    \begin{align}
+        \mathcal L^* U(\mathbf x)\le -\gamma,\qquad\forall \mathbf x\in \mathcal U\setminus\overline{\{\mathbf x\in\mathcal U: U(\mathbf x)<\rho_m\}}
+    \end{align}
+    where $\mathcal L^*$ is the adjoint Fokker-Planck operator given by
+    \begin{align}
+        \mathcal L^*f = \mu\cdot\nabla f+ D\odot\nabla^2 f \label{eq:def-adjoint-FP-op--steady-fp}
+    \end{align}
+\end{defn}
+This definition appears as definition 2.4 in \cite{huang2015steady}.
+Now we are ready to state the main theorem that will help us prove uniqueness for our example problems.
+\begin{thm}
+    If the components of $\mu$ are in $L^2_{\rm loc}(\mathcal U)$ and there exists a Lyapunov function with respect to $\mathcal L^*$ in $C^2(\mathcal U)$ then \eqref{eq:SFPE-0--steady-fp} has a positive weak solution in the space $W^{1, 2}_{\rm loc}(\mathcal U)$. If, in addition,
+the Lyapunov function is unbounded, the solution is unique in $\mathcal U$.\label{thm:unique-steady--steady-fp}
+\end{thm}
+This theorem appears as theorem $A$ in \cite{huang2015steady}. Since the components of $\mu$ are locally integrable for our example problems, all we need to do is find an unbounded Lyapunov function $U$ for proving existence and uniqueness in $W^{1,2}_{\rm loc}(\mathbb R^d)$.
+\subsubsection{Existence and uniqueness of solution for 2D ring system}\label{sssec-2D-unique--steady-fp}
+Setting 
+\begin{align}
+\mathcal U &= \mathbb R^2\\
+U(x, y) &= x^2+y^2\\
+\rho_m &= \frac{1}{2}+\sqrt{D+1}\\
+\gamma &= 4D+6\\
+\end{align}
+we see that,
+\begin{align}
+    \mathcal L^*U +\gamma = -8\left(x^2+y^2-\frac{1}{2}\right)^2 + 8(D+1)
+\end{align}
+and,
+\begin{align}
+    \mathcal U\setminus\overline{\{\mathbf x\in\mathcal U: U(\mathbf x)<\rho_m\}} = \left\{(x,y)\in\mathbb R: x^2+y^2>\rho_m\right\}
+\end{align}
+In  $\left\{(x,y)\in\mathbb R: x^2+y^2>\rho_m\right\}$, 
+\begin{align}
+    \mathcal L^*U+\gamma \le 0
+\end{align}
+and therefore $U$ is an unbounded Lyapunov function for the 2D ring system which guarantees uniqueness of solution \eqref{eq:grad-sol--steady-fp}.
+
+\subsubsection{Existence and uniqueness of solution for L63 system}\label{sssec-L63-unique--steady-fp}
+Setting,
+\begin{align}
+U(x, y, z) = \rho x^2 +\alpha y^2 + \alpha(z-2\rho)^2
+\end{align}
+we see that
+\begin{align}
+    \mathcal L^*U &= -2\alpha\rho x^2 - 2\alpha y^2 -2\alpha\beta z^2 + 4\alpha\beta\rho z + 2D(2\alpha+\rho)\\
+    &=-2\alpha\rho x^2 - 2\alpha y^2 -\alpha\beta z^2 -\alpha\beta(z-2\rho)^2 + 4\alpha\beta\rho^2 + 2D(2\alpha+\rho)\\
+    &\le -\rho x^2 -\alpha y^2 -\alpha(z-2\rho)^2 + 4\alpha\beta\rho^2 + 2D(2\alpha+\rho)\label{eq:L63-params-bigger-than-1--steady-fp}\\
+    &= -U(x, y, z)+ 4\alpha\beta\rho^2 + 2D(2\alpha+\rho)
+\end{align}
+\eqref{eq:L63-params-bigger-than-1--steady-fp} is a consequence of $\alpha, \beta, \rho>1$. Now setting,
+\begin{align}
+    \gamma &= 1,\\
+    \rho_m &= 4\alpha\beta\rho^2 + 2D(2\alpha+\rho)+1
+\end{align} we see that in $\{U>\rho_m\}$,
+\begin{align}
+    \mathcal L^*U +\gamma \le 0
+\end{align}
+So $U$ is an unbounded Lyapunov function for this system and we have a unique solution.
+\subsubsection{Existence and uniqueness of solution for Thomas system}\label{sssec-Thomas-unique--steady-fp}
+Setting,
+\begin{align}
+    U(x, y, z) = x^2+y^2+z^2
+\end{align}
+we see that
+\begin{align}
+    \mathcal L^* U &= x\sin y + y\sin z + z\sin x - b(x^2+y^2+z^2) + 6D\\
+    &\le \sqrt{3U}-bU + 6D\label{eq:CS-on-Thomas-unique--steady-fp}\\
+    &= -b\left(\sqrt{U}-\frac{\sqrt{3}}{2b}\right)^2 +\frac{3}{4b}+6D
+\end{align}
+\eqref{eq:CS-on-Thomas-unique--steady-fp} follows from Cauchy Schwarz inequality. Setting,
+\begin{align}
+    \gamma &= \frac{1}{4b},\\
+    \rho_m &= \left(\frac{\sqrt{3}}{2b}+\frac{\sqrt{1+6bD}}{b}\right)^2
+\end{align}
+we see that in $\{U>\rho_m\}$,
+\begin{align}
+    \mathcal L^*U +\gamma \le 0
+\end{align}
+So $U$ is an unbounded Lyapunov function for this system and we have a unique solution.
+
+\subsection{Monte Carlo steady state algorithm}\label{ssec-MC-algo--steady-fp}
+The time-dependent FPE given by 
+
+
+\begin{equation}
+\begin{aligned}
+    &\frac{\partial  p(t, \mathbf x)}{\partial t} =\mathcal L p(t, \mathbf x),\qquad\mathbf x\in\mathbb R^d,\; t\ge0\\&p(0, \mathbf x)=p_0(\mathbf x),\qquad\mathbf x\in\mathbb R^d\\
+    &\int_{\mathbb R^d}p(t,\mathbf x)\,d\mathbf x = 1,\qquad\forall\;t\ge0
+    \label{eq:FPE-0--steady-fp}
+\end{aligned}
+\end{equation}
+
+
+gives us the probability density of the random process $X_t$ which is governed by the SDE,
+\begin{equation}
+\begin{aligned}
+    &dX_t=\mu\,dt+\sigma\,dW_t\\
+    &X_0\sim p_0\label{eq:SDE-0--steady-fp}
+\end{aligned}
+\end{equation}where $\{W_t\}$ is the standard Wiener process, see for example chapters 4, 5 of \cite{gardiner2009stochastic}. We can evolve $\eqref{algo:steady--steady-fp}$ up to sufficiently long time using Euler-Maruyama method \cite{kloeden1992stochastic} to approximate the steady state solution of \eqref{eq:FPE-0--steady-fp} or the solution of \eqref{eq:SFPE-0--steady-fp} as follows. Here $\mathcal N$ denotes the multivariate normal distribution.
+%%%%%%
+\begin{algorithm}[!ht]
+Sample $\{ X_0^{(i)}\}_{i=1}^N\sim p_0$.\\
+Set the time-step $h$.\\
+Set the number of steps $S$.\\
+\For {$k=1,2\cdots, S$}{
+ Sample $w^i_k\sim\mathcal N(\mathbf 0_d, h I_d)\;\;\forall\;i$\\
+ $ X_k^{(i)}\leftarrow  X_{k-1}^{(i)} + \mu\left(X_{k-1}^{(i)}\right)h + \sigma w_k^i\;\;\forall\;i$\\
+}
+Subdivide the domain of interest $\Omega_I$ into $d$-dimensional boxes.\\ Count the number of $X^{(i)}_{S}$ that are in a box to estimate the stationary density at the center of the box.
+\caption{Monte Carlo steady state algorithm}\label{algo:MC--steady-fp}
+\end{algorithm}
+%%%%%%
+Note that in case of a unique solution of \eqref{eq:SFPE-0--steady-fp}, many choices of $p_0$ can lead to the stationary solution. In all our examples, it suffices to choose $p_0$ to be the standard $d$-dimensional normal distribution.
+
+\subsection{Integration error for $n$-point Gauss-Legendre rule}\label{ssec-error-GL--steady-fp}
+Suppose we are trying to integrate a smooth function $f(x)$ over $\left[a-\frac{h}{2}, a+\frac{h}{2}\right]$ with $n$-point Gauss-Legendre rule where $h\in(0, 1]$. Let us denote $I[f]$ to be the Gauss-Legendre approximation of $\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} f(x)\,dx$. Recalling that $n$-point Gauss-Legendre gives us exact integrals for polynomial of degree $\le 2n-1$ and using the Lagrange form of Taylor remainder we see that, 
+\begin{align}
+    \left|I[f]-\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} f(x)\,dx\right| &\le MI\left[\frac{(x-a)^{2n}}{(2n)!}\right]+M\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} \frac{(x-a)^{2n}}{(2n)!}\,dx\label{eq:diff-GL-true--steady-fp}
+\end{align}
+where $|f^{(2n)}(x)|\le M\;\;\forall\;\;x\in\left[a-\frac{h}{2}, a+\frac{h}{2}\right]$. To bound the first term on the RHS of \eqref{eq:diff-GL-true--steady-fp} we can use the fact that if 
+\begin{align}
+    I[f] = \sum_{i=1}^nw_if(x_i)
+\end{align}
+then,
+\begin{align}
+    &I[1] = \int_{a-\frac{h}{2}}^{a+\frac{h}{2}} 1 \,dx = h\\
+    \implies&\sum_{i=1}^nw_i = h\le1\\
+    \implies&I\left[\frac{(x-a)^{2n}}{(2n)!}\right]\le\frac{1}{(2n)!}\left(\frac{h}{2}\right)^{2n}
+\end{align}
+Therefore,
+\begin{align}
+    \left|I[f]-\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} f(x)\,dx\right|\le \frac{M}{(2n)!}\left(\frac{h}{2}\right)^{2n}+\frac{2M}{(2n+1)!}\left(\frac{h}{2}\right)^{2n+1}\le\frac{2M}{(2n)!}\left(\frac{h}{2}\right)^{2n}
+\end{align}
+ 

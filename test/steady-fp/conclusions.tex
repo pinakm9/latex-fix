@@ -1,0 +1,11 @@
+In this work we devise a deep learning algorithm  for finding non-trivial zeros of $\mathcal L$ when the corresponding drift is non-solenoidal. We can summarize our results as follows. 
+\begin{enumerate}
+    \item Our choice of architecture is capable of learning zeros of Fokker-Planck operators across many different problems while scaling only linearly with dimension.
+    \item Time taken per training iteration grows near-linearly with problem dimension.
+    \item Apart from being able to produce solutions in a functional form which Monte Carlo is incapable of, for the same overall sample-size algorithm~\ref{algo:steady--steady-fp} produces more accurate solutions compared to Monte Carlo.
+    \item How quickly algorithm~\ref{algo:steady--steady-fp} converges to a zero depends as much on the dimension as it does on the nature of the problem or the structure of $\mu$.
+    \item By minimizing the loss we also get closer to a true non-trivial zero of the Fokker-Planck operator which justifies algorithm~\ref{algo:steady--steady-fp}.
+    \item The loss and the distance from a true zero of the Fokker-Planck operator, even though structurally completely different, are strongly correlated. Moreover, they can be asymptotically linearly related for small values of the loss function.
+\end{enumerate}
+In a sequel we will show how we can solve time-dependent FPEs by using the zeros learned by algorithm~\ref{algo:steady--steady-fp}. The landscape of the loss defined in \eqref{algo:steady--steady-fp} poses many interesting geometric questions. For example, in case the nullspace of $\mathcal L$ is 1-dimensional do all the minima of $L_{\log}$ lie on a connected manifold of dimension $1$
+or are they disconnected from each other? Such questions provide possible avenues for future research.
