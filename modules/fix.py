@@ -50,6 +50,9 @@ class Fixer:
                 with open(folder + '/main.tex', 'r') as file:
                     data = file.read()
                 title = re.findall(r'\\title{[^}]+}', data)[0]
+                title_commands = re.findall(r'\\\S*', title[6:])
+                for command in title_commands:
+                    title = title.replace(command, '')
                 sections = re.findall(r'\\section[^#]+end{document', data)[0]
                 biblio =  re.findall(r'\\bibliography[^{]*{[^}]*}', data)
                 new_data = title.replace('title', 'chapter') + '\n' + sections[:-13]
