@@ -1,0 +1,36 @@
+\begin{lem} If $\alpha, \beta, \alpha_m$ are probability measures on a compact set $\chi\subset\mathbb R^d$ then
+\begin{align}
+     & 0=S_\varepsilon(\beta, \beta)\le S_\varepsilon(\alpha, \beta)\\
+     & \alpha=\beta\iff S_\varepsilon(\alpha, \beta)=0\\
+     & \alpha_m\stackrel{\text{weak*}}{\longrightarrow}\alpha\iff S_\varepsilon(\alpha_m, \alpha)\to0
+\end{align}
+\begin{proof}
+See Theorem $1$ in \cite{feydy2019interpolating}.
+\end{proof}
+\label{lem-prop--numerical-fs}
+\end{lem}
+
+\begin{lem}
+If $\alpha_m, \beta_m, \alpha, \beta$ are probability measures supported on a compact set $\chi\subset\mathbb R^d$ such that $\alpha_m\stackrel{\text{weak*}}{\longrightarrow}\alpha$ and $\beta_m\stackrel{\text{weak*}}{\longrightarrow}\beta$ then $\lim_{m\to\infty}S_\varepsilon(\alpha_m, \beta_m)= S_\varepsilon(\alpha, \beta)$.
+\label{lem-cont--numerical-fs}
+\end{lem}
+\begin{proof} Direct consequence of proposition 13 in \cite{feydy2019interpolating}.
+\end{proof}
+\begin{thm}
+If $\alpha_m =\frac{1}{m}\sum_{i=1}^m\delta_{x^m_i}$ and $\beta_m=\frac{1}{m}\sum_{i=1}^m\delta_{y^m_i}$ are sampling distributions for the same underlying probability distribution $\mu$ which is supported on a compact set $\chi\subset\mathbb R^d$ then $\lim_{m\to\infty}S_\varepsilon(\alpha_m, \beta_m)=0$.
+\label{thm-zero--numerical-fs}
+\end{thm}
+\begin{proof}
+Direct consequence of lemmas \ref{lem-prop--numerical-fs} and \ref{lem-cont--numerical-fs}.
+\end{proof}
+\begin{thm}
+If $\alpha_{m,n}, \beta_{m,n}, \alpha_n, \beta_n$ are random probability measures supported on a compact set $\chi\subset\mathbb R^d$ such that $\alpha_{m,n}\stackrel{\text{weak*}}{\longrightarrow}\alpha_n$ and $\beta_{m,n}\stackrel{\text{weak*}}{\longrightarrow}\beta_n$ as $m\to\infty$ and $$\lim_{n\to\infty}\liminf_{m\to\infty}\mathbb E [ D_\varepsilon(\alpha_{m,n}, \beta_{m, n})]=0$$ then, $\lim_{n\to\infty}\mathbb E[D_\varepsilon(\alpha_n, \beta_n)]=0$.\\
+\begin{proof}
+\begin{align*}
+   &\lim_{n\to\infty}\mathbb E[D_\varepsilon(\alpha_n, \beta_n)]\\
+    =& \lim_{n\to\infty}\mathbb E[\lim_{m\to\infty}D_\varepsilon(\alpha_{m,n}, \beta_{m,n})]\quad\text{by lemma }\ref{lem-cont--numerical-fs}\\
+    \le&\lim_{n\to\infty}\liminf_{m\to\infty}\mathbb E[D_\varepsilon(\alpha_{m,n}, \beta_{m,n})]=0\quad\text{by Fatou's lemma}
+\end{align*}
+\end{proof}
+\label{thm-stable--numerical-fs}
+\end{thm}

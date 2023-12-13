@@ -39,11 +39,13 @@ class Fixer:
         # combine bib files
         self.combine_bib(root_folder)
         
-        # rearrange files and cleanup
+        # rearrange tex files and rewrite main
         for i, folder in enumerate(self.folders):
+            # rearrange tex files
             self.move_files(self.find_tex(folder), folder)
-            self.move_files(self.find_img(folder), folder + '/plots')
-            self.remove_empty(folder)
+            # rerrange image files
+            self.move_imgs(folder)
+            # rewrite main.tex
             if os.path.exists(folder + '/main.tex'):
                 with open(folder + '/main.tex', 'r') as file:
                     data = file.read()
@@ -55,16 +57,25 @@ class Fixer:
                     new_data = new_data.replace(text, '')
                 with open(folder + '/main.tex', 'w') as file:
                     file.write(new_data)
+       
             
 
 
         # fix all references in latex files
         for i, folder in enumerate(self.folders):
+            # fix references i.e. \ref \eqref \label
             self.fix_all_refs(folder, ext='.tex', tag='--' + self.chapters[i])
+            # fix \include \includegraphics
             self.fix_all_paths(folder, ext='.tex', tag=self.chapters[i])
+            # turn paper into chapter
             self.fix_paper(folder)
+            # remove files of unnecessary types
             for other_file in self.find_other(folder, ['.cls', '.bst', '.bib']):
                 os.remove(other_file)
+            # remove everything but tex files and plots folder
+            for obj in os.listdir(folder):
+                if obj != 'plots' and not obj.endswith('.tex'):
+                    shutil.rmtree(folder + '/' + obj)
         
         
 
@@ -81,6 +92,27 @@ class Fixer:
                 data = file.read().replace('this paper', 'this chapter')
             with open(tex_file, 'w') as file:
                 file.write(data)
+
+    def get_new_img_ref(self, img_path, folder):
+        return folder + '/plots/' + img_path.replace('/', '-')
+    
+    def get_new_img_path(self, img_path):
+        i = img_path.index('/')
+        j = img_path[i+1:].index('/')
+        k = img_path[i+j+2:].index('/')
+        return img_path[:i+j+k+3] + 'plots/' + img_path[i+j+k+3:].replace('/', '-')
+
+
+    def move_imgs(self, folder):
+        if not os.path.exists(folder + '/plots'):
+            os.makedirs(folder + '/plots')
+        
+        for img_path in self.find_img(folder):
+            new_path = self.get_new_img_path(img_path)
+            # print(img_path, new_path)
+            shutil.move(img_path, new_path)
+        
+
             
                 
     def read_bib(self, folder):
@@ -172,7 +204,7 @@ class Fixer:
         return tex_paths, img_paths
     
     def fix_refs(self, file, refs, labels, tag):
-        with open(file) as f:
+        with open(file, 'r') as f:
             data = f.read()
             for ref in refs:
                 data = data.replace(ref, ref[:-1] + tag + '}')
@@ -182,7 +214,7 @@ class Fixer:
             f.write(data)
 
     def fix_paths(self, file, tex_paths, img_paths, tag):
-        with open(file) as f:
+        with open(file, 'r') as f:
             data = f.read()
             for path in tex_paths:
                 left, right = path.index('{'), path.index('}')
@@ -190,9 +222,12 @@ class Fixer:
                 data = data.replace(path, path[:left+1] + tag + '/' + file_ + path[right:])
             for path in img_paths:
                 left, right = path.index('{'), path.index('}')
-                file_ = os.path.basename(path[left+1:right])
-                data = data.replace(path, path[:left+1] + tag + '/plots/' + file_ + path[right:])
-        with open(file, 'w') as f:
+                new_path = self.get_new_img_ref(path[left+1:right], tag)
+                new_path = path[:left+1] + new_path + path[right:]
+                # print(path, new_path)
+                data = data.replace(path, new_path)
+     
+        with open(file, 'w') as f:    
             f.write(data)
 
     @ut.timer

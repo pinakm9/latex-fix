@@ -1,7 +1,7 @@
 In this section we describe the results in a manner that parallels the examples in section~\ref{sec-example--dynamic-fp} with additional problem-specific details. We refer to the solutions obtained via algorithm~\ref{algo:hybrid--dynamic-fp} as the \textit{learned} solutions in the figures below. We use the Monte-Carlo method as detailed in algorithm~\ref{algo:MC--dynamic-fp} to produce reference solutions in 2 and 3 dimensions. But in the absence of analytical solutions, we refrain from calculating the difference between the reference solution and the solution produced by algorithm~\ref{algo:hybrid--dynamic-fp} since Monte-Carlo solutions can be significantly erroneous, sometimes by more than an order of magnitude compared to its counterpart, even for simple problems, as evidenced by figure~7.2 in the prequel \cite{mandal2023learning}. When dealing with high-dimensional PDEs, one widely accepted paradigm is to construct solutions that are \textit{statistically} accurate or have the correct coarse-grained structures, especially for particle-based methods in geophysics \cite{bosler2013particle}, \cite{chen2018efficient} and financial modelling \cite{cui2015particle}. We present our results in the same spirit. For each system we use a bimodal initial condition as described in section~\ref{sec-example--dynamic-fp}. Figure~\ref{fig:L63-0--dynamic-fp} shows the initial condition for the noisy Lorenz-63 system defined in \eqref{eq:p0-L63--dynamic-fp}. For ease of visualization we have integrated out the last coordinate. The symmetry of the initial condition implies the other 2D marginals are identical. The other initial conditions described in section~\ref{sec-example--dynamic-fp} are either identical or qualitatively similar. In order to produce 2D marginal densities we use Gauss-Legendre quadrature the details of which can be found in appendix~9.3 of \cite{mandal2023learning}.
 \begin{figure}[!ht]
     \centering
-\includegraphics[scale=0.41]{dynamic-fp/plots/L63-0.png}
+\includegraphics[scale=0.41]{dynamic-fp/plots/dynamic-plots-L63-0.png}
     \caption{Initial condition for the noisy Lorenz-63 system.}
     \label{fig:L63-0--dynamic-fp}
 \end{figure}
@@ -16,7 +16,7 @@ There are no analytical solutions for this problem and classical methods are uns
 
 \begin{figure}[!ht]
     \centering
-\includegraphics[scale=0.32]{dynamic-fp/plots/10D-time.png}
+\includegraphics[scale=0.32]{dynamic-fp/plots/dynamic-plots-10D-time.png}
     \caption{Solutions for the 10D time-dependent system at time $t=0.1$. The learned solution has been normalized such that $\int_\mathbb{R}\int_\mathbb{R} p(0.1, 0, 0, 0, 0, x_4, x_5, 0, 0, 0, 0)\, dx_4\,dx_5=1$. The right panel depicts the Monte-Carlo solution for the $2$D Fokker-Planck equation corresponding to the variables $x_4,x_5$. The learned and Monte-Carlo solutions were computed using $10^5$ (pointwise) and $10^7$ trajectories respectively.}
     \label{fig:10D-time--dynamic-fp}
 \end{figure}
@@ -26,7 +26,7 @@ Figure~\ref{fig:L63-time--dynamic-fp} shows the solutions for the noisy Lorenz s
 several orders of magnitude fewer trajectories for each point. Both methods use $0.01$ as the step length for Euler-Maruyama.
  \begin{figure}[!ht]
     \centering
-\includegraphics[scale=0.21]{dynamic-fp/plots/L63-time.png}
+\includegraphics[scale=0.21]{dynamic-fp/plots/dynamic-plots-L63-time.png}
     \caption{Solutions for the noisy Lorenz 63 system at time t=0.03. The learned and Monte-Carlo solutions were computed using $200$ (pointwise) and $10^7$ trajectories respectively.}
     \label{fig:L63-time--dynamic-fp}
 \end{figure}
@@ -35,7 +35,7 @@ several orders of magnitude fewer trajectories for each point. Both methods use 
 Figure~\ref{fig:Thomas-time--dynamic-fp} shows the solutions for the noisy Thomas system defined by \eqref{eq:mu-Thomas--dynamic-fp} at time $t=1.0$ with $\mathcal D=[-8, 8]^3$ and $\Omega=[-10, 10]^3$. We only present $p(t, x, y)$, noting that the symmetry of the of problem renders demonstrations of the other 2D marginals redundant. We use algorithm~6.1 in \cite{mandal2023learning} for computing $p_\infty$. We use $M=10, N=50$ for the learned solution and the Monte-Carlo counterpart is computed using $10^7$ trajectories which reinstates our intuition that computing the Feynman-Kac expectation requires far fewer trajectories compared to Monte-Carlo for a similar level of accuracy.  Both methods use $0.1$ as the step length for Euler-Maruyama. In figure~\ref{fig:xi--dynamic-fp} we see that $\xi(t, \mathcal D, \Omega)\approx0.916$. So even after letting nearly $8.4\%$ of the h-SDE trajectories escape $\Omega$, we achieve a reasonable approximation.
 \begin{figure}[!ht]
     \centering
-\includegraphics[scale=0.32]{dynamic-fp/plots/Thomas-time.png}
+\includegraphics[scale=0.32]{dynamic-fp/plots/dynamic-plots-Thomas-time.png}
     \caption{Solutions for the noisy Thomas system at time t=1. The learned and Monte-Carlo solutions were computed using $100$ (pointwise) and $10^7$ trajectories respectively.}
     \label{fig:Thomas-time--dynamic-fp}
 \end{figure}
@@ -49,7 +49,7 @@ For a derivation see chapter 6 of \cite{sarkka2023bayesian} or \cite{doucet2009t
 
 \begin{figure}[!ht]
     \centering
-\includegraphics[scale=0.21]{dynamic-fp/plots/L63-filter.png}
+\includegraphics[scale=0.21]{dynamic-fp/plots/dynamic-plots-L63-filter.png}
     \caption{One step filtering density for the noisy Lorenz 63 system. The learned and particle filter solutions were computed using $200$ (pointwise) and $10^7$ trajectories respectively.}
     \label{fig:L63-filter--dynamic-fp}
 \end{figure}
