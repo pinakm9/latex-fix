@@ -38,7 +38,8 @@ class Fixer:
         
         # combine bib files
         self.combine_bib(root_folder)
-        
+
+
         # rearrange tex files and rewrite main
         for i, folder in enumerate(self.folders):
             # rearrange tex files
@@ -49,6 +50,9 @@ class Fixer:
             if os.path.exists(folder + '/main.tex'):
                 with open(folder + '/main.tex', 'r') as file:
                     data = file.read()
+                abstract = re.findall(r'{abstract}[^\\]+', data)[0][10:]
+                with open(folder + '/abstract.tex', 'w') as abstract_file:
+                    abstract_file.write(abstract)
                 title = re.findall(r'\\title{[^}]+}', data)[0]
                 title_commands = re.findall(r'\\\S*', title[6:])
                 for command in title_commands:
@@ -59,6 +63,8 @@ class Fixer:
                 for text in biblio:
                     new_data = new_data.replace(text, '')
                 with open(folder + '/main.tex', 'w') as file:
+                    file.write('\chapter*{Chapter \getnextid{' + 'chapter}}\n\\textit{\input{'\
+                                +f'{self.chapters[i]}' + '/abstract}}\n\\newpage\n\n')
                     file.write(new_data)
        
             

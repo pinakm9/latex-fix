@@ -60,14 +60,14 @@ Below we define the our architecture in detail. Here $\mathbf 0_k$ implies a zer
     i\in\{1,2,&\cdots, L\}\\
     \mathtt c_0(\mathbf x)\stackrel{\rm def}{=}&\,\mathbf 0_m\label{eq:layer-c0--steady-fp}\\
     \mathtt h_0(\mathbf x)\stackrel{\rm def}{=}&\,\mathbf 0_d\label{eq:layer-h0--steady-fp}\\
-    \mathtt f_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_f^{(i)}\mathbf x + \mathtt U_f^{(i)}h_{i-1}(\mathbf x) + \mathtt b_f^{(i)})\label{eq:layer-f--steady-fp}\\
-    \mathtt g_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_g^{(i)}\mathbf x + \mathtt U_g^{(i)}h_{i-1}(\mathbf x) + \mathtt b_g^{(i)})\label{eq:layer-g--steady-fp}\\
-    \mathtt r_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_r^{(i)}\mathbf x + \mathtt U_r^{(i)}h_{i-1}(\mathbf x) + \mathtt b_r^{(i)})\label{eq:layer-r--steady-fp}\\
-    \mathtt s_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_s^{(i)}\mathbf x + \mathtt U_s^{(i)}h_{i-1}(\mathbf x) + \mathtt b_s^{(i)})\label{eq:layer-s--steady-fp}\\
+    \mathtt f_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_f^{(i)}\mathbf x + \mathtt U_f^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_f^{(i)})\label{eq:layer-f--steady-fp}\\
+    \mathtt g_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_g^{(i)}\mathbf x + \mathtt U_g^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_g^{(i)})\label{eq:layer-g--steady-fp}\\
+    \mathtt r_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_r^{(i)}\mathbf x + \mathtt U_r^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_r^{(i)})\label{eq:layer-r--steady-fp}\\
+    \mathtt s_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_s^{(i)}\mathbf x + \mathtt U_s^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_s^{(i)})\label{eq:layer-s--steady-fp}\\
     \mathtt c_i(\mathbf x) \stackrel{\rm def}{=}&  \mathtt f_i(\mathbf x)\odot \mathtt c_{i-1}(\mathbf x) + \mathtt g_i(\mathbf x)\odot s_i(\mathbf x)\label{eq:layer-c--steady-fp}\\
     \mathtt h_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt r_i(\mathbf x)\odot \mathtt A(\mathtt c_i(\mathbf x))\label{eq:layer-h--steady-fp}\\
     \mathtt d_L(\mathbf x)\stackrel{\rm def}{=}&\mathtt W^\top\mathbf x + \mathtt b\label{eq:layer-final--steady-fp}\\
-    n^{\rm LSTM}_\theta \stackrel{\rm def}{=}& \mathtt d_L\circ \mathtt h_L\label{eq:def-LSTM--steady-fp} 
+    n^{{\rm LSTM}}_\theta \stackrel{\rm def}{=}& \mathtt d_L\circ \mathtt h_L\label{eq:def-LSTM--steady-fp} 
 \end{align}
 Here $\{\mathtt f_i, \mathtt g_i, \mathtt r_i, \mathtt s_i, \mathtt c_i, \mathtt h_i: i=1,\cdots,L\}\cup\{\mathtt d_L\}$ are the hidden layers and
 \begin{align}

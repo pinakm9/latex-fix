@@ -137,7 +137,7 @@ Subdivide the domain of interest $\Omega_I$ into $d$-dimensional boxes.\\ Count 
 %%%%%%
 Note that in case of a unique solution of \eqref{eq:SFPE-0--steady-fp}, many choices of $p_0$ can lead to the stationary solution. In all our examples, it suffices to choose $p_0$ to be the standard $d$-dimensional normal distribution.
 
-\subsection{Integration error for $n$-point Gauss-Legendre rule}\label{ssec-error-GL--steady-fp}
+\subsection{Integration error for \texorpdfstring{$n$}{Lg}-point Gauss-Legendre rule}\label{ssec-error-GL--steady-fp}
 Suppose we are trying to integrate a smooth function $f(x)$ over $\left[a-\frac{h}{2}, a+\frac{h}{2}\right]$ with $n$-point Gauss-Legendre rule where $h\in(0, 1]$. Let us denote $I[f]$ to be the Gauss-Legendre approximation of $\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} f(x)\,dx$. Recalling that $n$-point Gauss-Legendre gives us exact integrals for polynomial of degree $\le 2n-1$ and using the Lagrange form of Taylor remainder we see that, 
 \begin{align}
     \left|I[f]-\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} f(x)\,dx\right| &\le MI\left[\frac{(x-a)^{2n}}{(2n)!}\right]+M\int_{a-\frac{h}{2}}^{a+\frac{h}{2}} \frac{(x-a)^{2n}}{(2n)!}\,dx\label{eq:diff-GL-true--steady-fp}

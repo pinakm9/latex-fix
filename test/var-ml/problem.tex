@@ -1,0 +1,63 @@
+In this work, we are interested in problems of the following form.
+\begin{equation}
+\begin{aligned}
+    &\underset{u\in X}\arginf f(u)\\
+    &\subto g(u)=0 
+\end{aligned}   \label{eq:con-opt--var-ml}
+\end{equation}
+where $f :X\to\mathbb R$ and $g: X\to W$ and $X, W$ are real Hilbert spaces. $X$, in particular, is an infinite dimensional Hilbert space whereas $W$ can be either finite or infinite dimensional. This ensures that problem~\eqref{eq:con-opt--var-ml} is indeed an infinite-dimensional optimization problem. This setup allows us to encompass a fairly large class of problems with one or multiple constraints or even unconstrained problems if we set $g$ to be the zero function. 
+% But we can always reformulate the constraint $g(u)=0$ as 
+% \begin{align}
+%     \|g(u)\|_W = 0
+% \end{align}
+% where $\langle\cdot\rangle_W$ and $\|\cdot\|_W$ are the inner product and norm on $W$ respectively. Therefore, it suffices to assume $g:X\to\mathbb R$.
+To better familiarize ourselves with this setup let us first look at a few examples.
+\subsection{The minimal surface problem} During the later half of the eighteenth century Lagrange in his correspondence of with Euler delineated the foundations of calculus of variations and derived the famous Euler-Lagrange formula \cite{goldstine2012history}. One of the problems he considered during this time, asks to find the surface of least area stretched across a given contour. Although Lagrange did not find any solutions other than the plane, Euler and Jean Baptiste Meusnier later showed that helicoid and catenoid are also valid solutions to the minimal surface problem \cite{meusnier1785memoire}. Since then the theory of minimal surfaces has seen multiple revivals with Schwarz's solution to the Björling problem \cite{darboux1896leccons}, the discovery of Costa's surface \cite{costa1984example} and has even found its way into mathematical physics through topics like positive energy theorem \cite{schoen1979proof}. The rich theory behind minimal surfaces allows them to be expressed in many different ways \cite{colding2011course}. Here we will work with a definition that closely resembles Lagrange's original formulation. Rather than describing the minimal surface problem in its full generality, we describe the specific problem we will solve below. We define $X$ to be an appropriate Sobolev space, $f$ to be an area functional and $g$ to be the boundary condition.
+\begin{equation}
+\begin{aligned}
+    &\Omega=(0,1 )\times(-2\pi, 2\pi),\;X=W^{1, 2}(\Omega;\mathbb R),\; W=W^{1,2}((-2\pi,2\pi);\mathbb R)\\
+    &f(u)=\int_{-2\pi}^{2\pi}\int_0^1\sqrt{\left[1+\left(\frac{\partial u}{\partial r}\right)^2\right]r^2+\left(\frac{\partial u}{\partial\theta}\right)^2}\;dr\,d\theta\\
+&g(u): \theta \mapsto u(1, \theta) - \theta\label{eq:ms--var-ml}
+\end{aligned}    
+\end{equation}
+Our question thus becomes, what is the surface of minimal area given it has a unit helix as its boundary? And the solution $u^*$ gives us the minimal surface $(r, \theta, u^*(r,\theta))$. 
+
+\subsection{Geodesics on a surface}  Johann Bernoulli was interested in several problems in calculus of variations and investigated both curves of shortest length and time between two points \cite{struik1961lectures}, \cite{goldstine2012history}. The former type of curves are known as geodesics while the latter are known as brachistochrones. After having found the solution to the brachistochrone problem Bernoulli had challenged his contemporaries to come up with their own solutions (a practice that was not uncommon in the era) to which Newton (anonymously), Jacob Bernoulli, Leibniz and de L'Hôpital had responded with their own solutions. The aftermath of this challenge would eventually lead to the infamous calculus controversy between Leibniz and Newton \cite{palomo2021new}, \cite{goldstine2012history}. Even though the brachistochrone problem is one of the oldest problems to be posed in calculus of variations with a rich history of mathematical rivalry associated with it, the geodesic problem would go on to outpace it in terms of importance with the development of differential geometry. Eventually geodesics would become an essential part in our understanding of motion under gravity with the advent of general relativity \cite{weinberg1972gravitation}. Here we look at the simple problem of finding the shortest path on unit a sphere given two points $(1, \theta_0, \phi_0), (1, \theta_1, \phi_1)$ (in spherical polar coordinates) on it by setting,
+\begin{equation}
+\begin{aligned}
+    &\Omega=[\theta_0, \theta_1],\;X=W^{1, 2}(\Omega; [0, 2\pi)),\; W=\mathbb R\\
+    &f(u) = \int_{\theta_0}^{\theta_1}\sqrt{1+\left(\sin\theta \frac{du}{d\theta}\right)^2}\;\,d\theta\\
+    & g(u) = \sqrt{(u(\theta_0)-\phi_0)^2 + (u(\theta_1)-\phi_1)^2}\label{eq:gs--var-ml}
+\end{aligned}
+\end{equation}
+If $u^*$ is the solution then $(1,\theta, u^*(\theta))$ gives us a parametrization for the geodesic curve.
+\subsection{Grad-Shafranov equation} Grad-Shafranov equation is an elliptic partial differential equation describing the poloidal flux under ideal magnetohydrodynamics for a 2D plasma \cite{smithaaxisymmetric}.  Modelling the plasma equilibrium is an important aspect of designing magnetic confinement devices like tokamaks in the field of nuclear fusion. Although originally used for axis-symmetric tokamaks, the Grad-Shafranov equation has been analyzed for non-axis symmetric magnetohydrodynamic equilibrium as well \cite{burby2020generalized}. In 1968 Solov'ev derived a family of analytic solutions for the Grad-Shafranov equation under the assumption that there is distributed toroidal
+current filling all space \cite{xu2019vacuum} and since then these Solev'ev solutions have become an import benchmarking tool for plasma equilibrium codes \cite{johnson1979numerical}. Below we describe the Grad-Shafranov equation, this specific version can also be found in \cite{xu2019vacuum}. 
+\begin{equation}
+\begin{aligned}
+    &\frac{\partial^2 u}{\partial z^2}+r\frac{\partial}{\partial r}\left(\frac{1}{r}\frac{\partial u}{\partial r}\right) =ar^2 + bR^2,\qquad (r,z)\in\Omega= [0.9R, 1.1R]\times[-0.1R, 0.1R]\\
+    & u(r, z) = \frac{1}{2}(b+c_0)R^2z^2+c_0R\zeta z^2+\frac{1}{2}(a-c_0)R^2\zeta^2, \qquad (r, z)\in{\partial\Omega}\\
+    &\text{\rm where }\zeta =\frac{r^2-R^2}{2R}, R=1.0,\, a = 1.2,\,b=-1.0,\, c_0=1.1
+\end{aligned}
+\end{equation}
+In order to cast this problem into the format of \eqref{eq:con-opt--var-ml}, we set
+\begin{equation}
+\begin{aligned}
+    &X = W^{1,2}(\Omega;\mathbb R),\;W=W^{1,2}(\partial\Omega; \mathbb R)\\
+    &f(u) = \int_{-0.1R}^{0.1R}\int_{0.9R}^{1.1R}\left(\frac{\partial^2 u}{\partial z^2}+r\frac{\partial}{\partial r}\left(\frac{1}{r}\frac{\partial u}{\partial r}\right) -ar^2 - bR^2\right)^2\,dr\,dz\\
+    &g(u): (r,z)\mapsto \frac{1}{2}(b+c_0)R^2z^2+c_0R\zeta z^2+\frac{1}{2}(a-c_0)R^2\zeta^2 - u(r, z)
+\end{aligned}\label{eq:GS--var-ml}
+\end{equation}
+\subsection{Beltrami fields} Beltrami fields are special vector fields that are eigenfunctions of the curl operator. They play an important role in fluid dynamics as steady solutions to the Euler equation \cite{aris2012vectors}. In this problem we ask, given Beltrami boundary data, what is the magnetic field of least energy in a 3D volume? Gauss's law \cite{jackson1999classical} dictates that we have to take the nondivergence of magnetic fields into account which can be done in multiple ways while formulating our question, either as a part of the Hilbert space $X$ (since divergence is a linear operator) or as an addition to the boundary condition $g$. Here we choose to impose Gauss's law as a part of the Hilbert space $X$.
+\begin{equation}
+    \begin{aligned}
+&\Omega = \left[-\frac{1}{2}, \frac{1}{2}\right]^3,\; X=\overline{\{u\in W^{1,2}(\Omega; \mathbb R^3):\nabla\cdot u=0\}},\;W=W^{1,2}(\partial\Omega;\mathbb R^3)\\
+    &f(u) = \frac{1}{2}\int_{-\frac{1}{2}}^{\frac{1}{2}}\int_{-\frac{1}{2}}^{\frac{1}{2}}\int_{-\frac{1}{2}}^{\frac{1}{2}}|u(x, y, z)|^2\,dx\,dy\,dz\\
+    & g(u): (x, y, z)\mapsto u(x, y, z) - \begin{bmatrix}
+\sin(z) + \cos(y) \\
+\sin(x) + \cos(z) \\
+\sin(y) + \cos(x) \\
+\end{bmatrix}
+    \end{aligned}
+\end{equation}
+Unlike the other problems stated here, this problem is \textit{manufactured} and has no direct practical applications but nevertheless serves as an interesting toy problem.

@@ -113,7 +113,7 @@ We use the bootstrap particle filter for our experiments with a stochastic resam
  \caption{BPF with offspring-based resampling}\label{algo-bpf--probing-nfs}}
 \end{algorithm}
 
-{\color{mypink}\subsection{Choice of distance $D$} Although the stability definitions are independent of  any kind of specific distance and can be computed with other choices of $D$ we choose $D$ to be the $2$nd Wasserstein distance $W_2$. We justify our choice with the reasons below.
+{\color{mypink}\subsection{Choice of distance \texorpdfstring{$D$}{Lg}} Although the stability definitions are independent of  any kind of specific distance and can be computed with other choices of $D$ we choose $D$ to be the $2$nd Wasserstein distance $W_2$. We justify our choice with the reasons below.
 \begin{itemize}
     \item There is an efficient algorithm for approximating $W_p$ which is described below. 
     \item Some nice geometric properties of $W_p$ e.g. metrizing the convergence in law \cite{feydy2019interpolating} are missing from other distances or distance-substitutes like the  total variation distance and  the KL-divergence. 

@@ -1,0 +1,157 @@
+\subsection{Architecture} \label{ssec-arch--var-ml}
+We use two different architectures here which we refer to as LSTM (long short-term memory) and FF (feed-forward). LSTM type networks have been employed to solve partial differential equations \cite{sirignano2018dgm}, \cite{mandal2023learning} and are useful for avoiding vanishing gradients in deep networks \cite{sherstinsky2020fundamentals}, \cite{vennerod2021long}. We use the same LSTM architecture that appears in \cite{mandal2023learning}. For the sake of completeness we describe this architecture in detail below. Here $\mathbf 0_k$ implies a zero vector of dimension $k$, $\odot$ implies the Hadamard product, $d_I, d_O$ denote the input and outpuut dimensions and $\theta$ represents the ordered set of training parameters. The architecture has two numeric hyperparameters $m, L$ describing the size of individual layers and the number of LSTM blocks respectively. Activation $\mathtt A$ is the elementwise $\tanh$ function and finally, $n^{{\rm LSTM}(m, L, d_I, d_O)}_\theta$ represents the complete network.
+
+\begin{align}
+    i\in\{1,2,&\cdots, L\}\\
+    \mathtt c_0(\mathbf x)\stackrel{\rm def}{=}&\,\mathbf 0_m\label{eq:layer-c0--var-ml}\\
+    \mathtt h_0(\mathbf x)\stackrel{\rm def}{=}&\,\mathbf 0_{d_I}\label{eq:layer-h0--var-ml}\\
+    \mathtt f_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_f^{(i)}\mathbf x + \mathtt U_f^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_f^{(i)})\label{eq:layer-f--var-ml}\\
+    \mathtt g_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_g^{(i)}\mathbf x + \mathtt U_g^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_g^{(i)})\label{eq:layer-g--var-ml}\\
+    \mathtt r_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_r^{(i)}\mathbf x + \mathtt U_r^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_r^{(i)})\label{eq:layer-r--var-ml}\\
+    \mathtt s_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_s^{(i)}\mathbf x + \mathtt U_s^{(i)}\mathtt h_{i-1}(\mathbf x) + \mathtt b_s^{(i)})\label{eq:layer-s--var-ml}\\
+    \mathtt c_i(\mathbf x) \stackrel{\rm def}{=}&  \mathtt f_i(\mathbf x)\odot \mathtt c_{i-1}(\mathbf x) + \mathtt g_i(\mathbf x)\odot s_i(\mathbf x)\label{eq:layer-c--var-ml}\\
+    \mathtt h_i(\mathbf x) \stackrel{\rm def}{=}& \mathtt r_i(\mathbf x)\odot \mathtt A(\mathtt c_i(\mathbf x))\label{eq:layer-h--var-ml}\\
+    \mathtt d_L(\mathbf x)\stackrel{\rm def}{=}&\mathtt W^\top\mathbf x + \mathtt b\label{eq:layer-final--var-ml}\\
+    n^{{\rm LSTM}(m, L, d_I, d_O)}_\theta \stackrel{\rm def}{=}& \mathtt d_L\circ \mathtt h_L\label{eq:def-LSTM--var-ml} 
+\end{align}
+Here $\{\mathtt f_i, \mathtt g_i, \mathtt r_i, \mathtt s_i, \mathtt c_i, \mathtt h_i: i=1,\cdots,L\}\cup\{\mathtt d_L\}$ are the hidden layers and
+\begin{align}
+    \theta=\{\mathtt W_f^{(i)}, \mathtt U_f^{(i)}, \mathtt b_f^{(i)}, \mathtt W_g^{(i)}, \mathtt U_g^{(i)}, \mathtt b_g^{(i)}, \mathtt W_r^{(i)}, \mathtt U_r^{(i)}, \mathtt b_r^{(i)}, \mathtt W_s^{(i)}, \mathtt U_s^{(i)}, \mathtt b_s^{(i)}:
+i=1,\cdots,L\}\cup\{\mathtt W, \mathtt b\}\label{eq:theta-composition--var-ml}
+\end{align}is the set of the trainable parameters. The dimensions of these parameters are given below,
+\begin{align}
+   \mathtt W_f^{(i)}, 
+   \mathtt W_g^{(i)},  \mathtt W_r^{(i)},  \mathtt W_s^{(i)} \in&\;
+   \mathbb R^{m\times d_I}\\
+   \mathtt U_f^{(i)},
+\mathtt U_g^{(i)},
+\mathtt U_r^{(i)},
+\mathtt U_s^{(i)}\in&
+   \begin{cases}\mathbb R^{m\times d_I},\quad\text{ if }i=1 \\
+   \mathbb R^{m\times m},\quad\text{otherwise}
+   \end{cases}\\
+   \mathtt b_f^{(i)},\mathtt b_g^{(i)},\mathtt b_r^{(i)},\mathtt b_s^{(i)}\in&\;\mathbb R^m\\
+   \mathtt W\in\mathbb R^{d_O\times m}, \mathtt b\in&\;\mathbb R^{d_O}
+\end{align}
+which implies the size of the network or cardinality of $\theta$ is $4m[d_I(L+1)+m(L-1)+1]+d_O(m+1)$.
+
+We use $n^{{\rm FF}(m, L, d_I, d_O)}_\phi$ to represent a simple feed-forward network without any skip connections with $\phi$ being the set of trainable parameters. In this case the hyperparameters $m, L$ denote the size of an individual layer and the number of hidden layers respectively. 
+
+\begin{align}
+    i\in\{1,&\cdots, L-1\}\\
+    \mathtt f_{0}(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_f^{(0)}\mathbf x + \mathtt b_f^{(0)})\\
+    \mathtt f_{i}(\mathbf x) \stackrel{\rm def}{=}& \mathtt A(\mathtt W_f^{(i)}\mathtt f_{i-1}(\mathbf x) + \mathtt b_f^{(i)})\\
+    \mathtt d_L(\mathbf x)\stackrel{\rm def}{=}&\mathtt W^\top\mathbf x + \mathtt b\\
+    n^{{\rm FF}(m, L, d_I, d_O)}_\phi \stackrel{\rm def}{=}& \mathtt d_L\circ \mathtt f_L\label{eq:def-FF--var-ml} 
+\end{align}
+So $\phi$ is given by,
+\begin{align}
+    \phi=\{\mathtt W^{i}_f, \mathtt b^{i}_f:i=0,1,\cdots L-1\}\cup\{\mathtt W, \mathtt b\}
+\end{align}
+and the dimensions of these trainable parameters are given are,
+\begin{align}
+   \mathtt W_f^{(i)} \in&\;\begin{cases}
+   &\mathbb R^{m\times d_I},\quad\text{ if }i=0\\
+   &\mathbb R^{m\times m},\quad\text{otherwise }\end{cases}\\
+   \mathtt b_f^{(i)}\in&\;\mathbb R^m\\
+   \mathtt W\in\mathbb R^{d_O\times m}, \mathtt b\in&\;\mathbb R^{d_O}
+\end{align}
+The size of $n^{{\rm FF}(m, L, d_I, d_O)}_\phi$ is therefore $m[d_I + (L+1) + m(L-1)]+(d_O-1)(m+1)$. 
+We list the network architectures and sizes used in our experiments in table~\ref{tab:network--var-ml}.
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c|c| }   \hline
+    Problem & Algorithm  &$\mathcal A$ &  $a$&  $\mathcal B$&  $b$ \\ 
+    \hline
+    Minimal surface&${\rm P}^\infty$ &  FF(50, 3, 2, 1) & $5300$  &-  &  -\\
+    \hline
+    Minimal surface &${\rm AL}^\infty_\infty$ &  FF(50, 3, 2, 1) & $5300$  &FF(50, 3, 1, 1)  &  $5250$\\
+    \hline
+    Geodesic&${\rm P}^\infty$ &  LSTM(50, 3, 1, 1) & $21051$  &- &  - \\
+    \hline
+    Geodesic &${\rm AL}^\infty_{\rm F}$ &  LSTM(50, 3, 1, 1) & $21051$  & scalar  &  1\\
+    \hline
+   Grad-Shafranov &${\rm P}^\infty$ &  LSTM(50, 3, 2, 1) & $21851$  &-&  -\\
+    \hline
+    Grad-Shafranov & ${\rm AL}^\infty_\infty$ &  LSTM(50, 3, 2, 1) & $21851$  & FF(50, 3, 2, 1) &  $5300$\\
+    \hline
+    Beltrami field& ${\rm P}^\infty$ &  LSTM(50, 3, 3, 3) & $22753$  &- &  -\\
+    \hline
+    Beltrami field &${\rm AL}^\infty_\infty$ &  LSTM(50, 3, 3, 3) & $22753$  &FF(50, 3, 3, 3)  &  $5452$\\
+    \hline
+\end{tabular}
+\caption{Networks used in various experiments}
+\label{tab:network--var-ml}
+\end{center}
+\end{table}
+\subsection{Penalty factor}\label{ssec-mu--var-ml} Recall that we use a stopped geometric sequence as our $\mu_k$ \eqref{eq:mu--var-ml}. We list the hyperparameters that determine $\mu_k$ in table~\ref{tab:mu--var-ml}.
+\begin{table}[!ht]
+    \begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c| } 
+     \hline
+     Problem & Algorithm& $\mu_1$ & $\mu_{\max}$ &  $r$\\ 
+     \hline
+     Minimal surface& ${\rm P}^\infty$ & $100$ & $5000$  &$1.01$  \\
+     \hline
+     Minimal surface &${\rm AL}^\infty_\infty$ & $100$ & $5000$  &$1.01$  \\
+     \hline
+     Geodesic&${\rm P}^\infty$ & $100$ & $500$  &$1.01$  \\
+     \hline
+     Geodesic &${\rm AL}^\infty_{\rm F}$ & $100$ & $500$  &$1.01$  \\
+     \hline
+    Grad-Shafranov&${\rm P}^\infty$ & $100$ & $1000$  &$1.01$\\
+     \hline
+     Grad-Shafranov &${\rm AL}^\infty_\infty$ & $100$ & $1000$  &$1.01$ \\
+     \hline
+     Beltrami field&${\rm P}^\infty$ & $100$ & $5000$  &$1.01$ \\
+     \hline
+     Beltrami field &${\rm AL}^\infty_\infty$ & $100$ & $5000$  &$1.01$  \\
+     \hline
+\end{tabular}
+\caption{Hyperparameters of the penalty factor for various experiments}
+\label{tab:mu--var-ml}
+\end{center}
+\end{table}
+
+\subsection{Learning rate}\label{ssec-rate--var-ml}
+The learning rate $\delta$ depends on 7 hyperparameters which are the initial learning rate ($L_0$), initial decay rate ($D_0$), initial decay steps ($S_0$), tipping point ($T$), final learning rate ($L_1$), final decay rate ($D_1$), final decay steps ($S_1$). We define $\delta$ as,
+\begin{align}
+    \delta(t)=\begin{cases}
+         L_0D_0^{\frac{t\,{\rm mod }\,S_0}{S_0}},\;&t<T\\
+         L_1D_1^{\frac{t-T}{S_1}},\;&t\ge T\\
+    \end{cases}
+\end{align}
+We list these parameters for our experiments in table~\ref{tab:rate--var-ml}. We use,
+\begin{align}
+    &S_0 = \frac{2E}{P}\\
+    &T=\left\lfloor\frac{2E(\mu_{\max}-\mu_1)}{Pr}\right\rfloor\\
+    &S_1=E-T
+\end{align}
+For definitions of $E,P$ see section~\ref{sec-appendix--var-ml}. In case $T>E$, we never reach the tipping point and hence do not list $L_1, D_1$.
+\begin{table}[!ht]
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c|c| } 
+    \hline
+    Problem & Algorithm& $L_0$ & $D_0$ &  $L_1$ & $D_1$ \\ 
+    \hline
+    Minimal surface& ${\rm P}^\infty$ & $10^{-4}$ & $10^{-1}$  &- &- \\
+    \hline
+    Minimal surface &${\rm AL}_\infty^\infty$ & $10^{-4}$ & $2\times10^{-1}$  &- &- \\
+    \hline
+    Geodesic&${\rm P}^\infty$ & $10^{-3}$ & $10^{-1}$  &$10^{-4}$ &$10^{-2}$ \\
+    \hline
+    Geodesic &${\rm AL}^\infty_{\rm F}$ & $10^{-3}$ & $10^{-1}$  &$10^{-4}$ &$10^{-2}$ \\
+    \hline
+   Grad-Shafranov&${\rm P}^\infty$ & $10^{-4}$ & $10^{-1}$  &$10^{-6}$ &$10^{-2}$ \\
+    \hline
+    Grad-Shafranov &${\rm AL}_\infty^\infty$ & $10^{-4}$ & $10^{-1}$  &$10^{-6}$ &$10^{-2}$ \\
+    \hline
+    Beltrami field&${\rm P}^\infty$ & $10^{-4}$ & $10^{-1}$  &- &- \\
+    \hline
+    Beltrami field &${\rm AL}_\infty^\infty$ & $10^{-4}$ & $10^{-1}$  &- &- \\
+    \hline
+   \end{tabular}
+   \caption{ Hyperparameters of the learning rate for various experiments}
+   \label{tab:rate--var-ml}
+\end{center}
+\end{table}
