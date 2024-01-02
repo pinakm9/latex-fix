@@ -1,0 +1,60 @@
+\subsection{Model} \label{ssec-models--probing-nfs}
+Proposed first in 1995 by Edward N. Lorenz, the Lorenz-96 equations are a set of autonomous equations said to be mimicking the circulation of the earth's atmosphere in an over-simplified manner. Although simple, they have had significant impact on the development of the dynamical systems theory, especially because of their chaotic nature in arbitrary dimensions. Since an important application of data assimilation is numerical weather prediction, the Lorenz systems are a natural first choice for experiments. Since their inception they have been extensively used in data assimilation literature. Here we use $d = 10$~dimensional Lorenz-96~\cite{Lorenz96, kekem2018dynamics} with forcing constant $F=10$. We observe the system $g$ units of time which fixes the evolution function $f$. We observe alternate coordinates starting from the first coordinate, so
+\begin{align}
+    y_{k,j} = x_{k,2j-1} + \eta_{k,j} \,,
+\label{eq-altobs--probing-nfs} \end{align}
+for $j=1, 2, \cdots, q = \left\lceil\frac{d}{2}\right\rceil$ and $\eta_{k, j}\sim\mathcal N(0, \sigma^2)$. Throughout the paper, we use $\sigma^2=0.2, 0.4, 0.8, 1.6$ and \newline $g=0.01, 0.03, 0.05, 0.07, 0.09$. The choice of the dimension $d=10$  makes sure that we get reasonable performances from both the EnKF and the particle filter.
+
+
+\subsection{Data generation}
+Lorenz systems are known to have attracting sets. In  this chapter, we focus on the special case when the filtering distributions are expected to be supported on the attractor. Not only does it mimic real world scenarios, it also lets us make use of the theory optimal transport distances, outlined in \cite{feydy2019interpolating}, when the probability measures are supported on a compact domain, since the Lorenz attractors are bounded sets. So we begin by finding a point on the attractor by randomly generating an initial point and evolving it according to $f_g$ for $10^5$ iterations. Starting from this point $x_0^{\text{true}}$ on the attractor, we generate a true trajectory according to \eqref{eq-state--probing-nfs} and then generate $10$ different observation realizations for the same trajectory according to \eqref{eq-altobs--probing-nfs} in order to compute the expectation over observational noise, as in \eqref{eq-stablaw--probing-nfs}. {\color{mypink} For a justification of why $10$ observation realizations suffice for our study, see appendix~\ref{ssec-sample-size--probing-nfs}}. 
+
+\subsection{Initial distributions}\label{ssec-init-dist--probing-nfs}
+We use two Gaussian initial conditions. The first one $\mu_0$ is centered at the true state with a small variance representing the case when our guess for the initial distribution is unbiased and precise. Thus we expect the filter to continue to have those properties {\color{mypink} upto some time.} The second one $\mu_b$ is centered away from the true state with a significantly larger variance representing the case when our guess for the initial distribution is biased and imprecise. They are given by,
+\begin{align}
+    &\mu_0 = \mathcal{N}(x_0^{\text{true}}, 0.1\times I_d) \,, \nonumber \\
+    &\mu_b = \mathcal{N}(x_0^{\text{true}} + 4\times1_d, I_d) \,,
+\label{eq-3ic--probing-nfs} \end{align}
+where $1_d$ is a $d$-dimensional vector with all entries $1$. {\color{mypink}With this notation $x_0^{\rm true}$ corresponds to $x_0(\omega)$ in subsection \ref{ssec-def-stab--probing-nfs}. Note that different realizations of $x_0$ produce similar results as shown here.}
+
+
+\subsection{Metrics for filter stability}
+
+To probe filter stability directly using the definition~\ref{def-stab--probing-nfs}, we study the Sinkhorn divergence $\mathbb E[D_\varepsilon(\pi_n(\mu_0), \pi_n(\mu_b))]$ as a function of time. It has been well-known that in nonlinear filtering problems where the dynamic model is stochastic, under suitable additional conditions, the filter is exponentially stable and from an incorrect initial condition, it reaches stability in an exponential fashion (see, e.g., chapter 3 of~\cite{van2008hidden}). Although such results are not available for the case of deterministic dynamics, exponential decay is a natural or at least desirable behaviour for the temporal behaviour of the distance between two filters starting from different initial distributions. To explore this qualitatively, we fit a curve of the following form
+\begin{align}
+    \mathbb E[D_\varepsilon(\pi_n(\mu_0), \pi_n(\mu_b))] = a\exp(-\lambda t) + c \,, \label{eq:fit--probing-nfs}
+\end{align}
+where time $t=$ assimilation step $\times$ observation gap = $ng$. One of the motivation is to understand whether the exponent $\lambda$ is related the dynamical quantities such as the Lyapunov exponents of the chaotic dynamical system under consideration.
+
+In addition to stability, we also explore its relationship to the convergence of the filter mean toward the true signal as well as the uncertainty of the mean estimate. Motivated by the results about bounds on the former of these two in~\cite[Theorem~4.4]{KLS14} and \cite[Theorem~4.6]{law2016filter}, we define the following two quantities.
+
+The first quantity aims to capture the bias of the filter and is the scaled $l_2$ error denoted by $e_n(\nu)$.
+\begin{align}
+    e_n(\nu) &\stackrel{\rm def}{=} \frac{1}{\sqrt{d}} \left\| \mathbb{E}_{\hat\pi_n(\nu)}[x_n] - \phi\left(ng, x_0^{\text{true}}\right) \right\|_2 \,, \nonumber \\
+    &= \left[ \frac{1}{d} \sum_{i=1}^d \left(\frac{1}{N} \sum_{\alpha=1}^N x_n^{\alpha,i} - x_n^{\text{true}, i} \right)^2 \right]^{1/2} \,, \label{eq-error--probing-nfs}
+\end{align}
+where $x_n^{\alpha,i}$ denotes the $i$-th coordinate of the $\alpha$-th member of the ensemble representing the filtering distribution at time $n$. Thus, $e_n(\nu)$ is the distance between the true state and the filter mean divided by square root of the state space dimension $d$, with $n$ denoting the assimilation step and $\nu$ the initial distribution of the filter. Note that from the results \cite[Theorem~4.4]{KLS14} and \cite[Theorem~4.6]{law2016filter} mentioned earlier, we expect $\mathbb{E}[e_n^2(\nu)] \sim \sigma^2$ asymptotically in time.
+
+The second quantity $s_n(\nu)$ captures the uncertainty of the filter estimate.
+\begin{align}
+    s_n(\nu) & \stackrel{\rm def}{=} \left[ \frac{1}{d} \tr \left[ \mathbb{E}_{\hat\pi_n(\nu)}[\left(x_n - \mathbb{E}_{\hat\pi_n(\nu)}[x_n] \right)\left(x_n - \mathbb{E}_{\hat\pi_n(\nu)}[x_n] \right)^t \right]^{1/2} \right] \,, \nonumber \\ 
+    &= \left[ \frac{1}{d} \sum_{i=1}^d \frac{1}{N-1} \sum_{\alpha=1}^N \left(x_n^{\alpha,i} - \sum_{\beta=1}^N x_n^{\beta,i} \right)^2 \right]^{1/2}\,, \label{eq-var--probing-nfs}
+\end{align}
+ Thus, $s_n(\nu)$ is the square root of the trace of the sample covarianace of the filter. We note that we are not aware of any theoretical results that give any indication about the asymptotic in time limit of this quantity but it is reasonable to explore their relation with the observational uncertainty.
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

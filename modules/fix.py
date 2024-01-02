@@ -20,11 +20,14 @@ class Fixer:
         self.types = {'plots': ['.png', '.jpg'], 'tex': ['.tex'], }
 
 
-        if mode == 'clear':
+        if mode == 'clear_folder':
             # remove all non-zip folders
             for f in os.scandir(root_folder):
-                if f.is_dir():
-                    shutil.rmtree(f.path)
+                if not f.path.endswith('.zip'):
+                    try:
+                        shutil.rmtree(f.path)
+                    except:
+                        pass
         
         # unzip all zip files and remove them
         for f in os.scandir(root_folder):
@@ -33,7 +36,7 @@ class Fixer:
                     zip_ref.extractall(f.path[:-4])
                 self.chapters.append(os.path.basename(f.path)[:-4])
                 self.folders.append(f.path[:-4])
-                if mode == 'clear':
+                if mode == 'clear_zip':
                     os.remove(f.path)
         
         # combine bib files
@@ -84,7 +87,10 @@ class Fixer:
             # remove everything but tex files and plots folder
             for obj in os.listdir(folder):
                 if obj != 'plots' and not obj.endswith('.tex'):
-                    shutil.rmtree(folder + '/' + obj)
+                    try:
+                        shutil.rmtree(folder + '/' + obj)
+                    except:
+                        os.remove(folder + '/' + obj)
         
         
 
@@ -171,7 +177,9 @@ class Fixer:
         return list(map(str, Path(folder).rglob('*.bib')))
     
     def find_img(self, folder):
-        return list(map(str, Path(folder).rglob('*.png'))) + list(map(str, Path(folder).rglob('*.jpg'))) 
+        imgs =  list(map(str, Path(folder).rglob('*.png'))) + list(map(str, Path(folder).rglob('*.jpg')))
+        # print(imgs)
+        return imgs 
     
     def find_other(self, folder, exts):
         files = []
@@ -255,68 +263,81 @@ class Fixer:
           
 
 
-    
 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# folder = '../test/steady-tex'
-
-
-
-
-
-
-
-
-
+class Combiner(Fixer):
+    def __init__(self, root_folder, tag, mode=None):
+        super().__init__(root_folder, mode)
+        self.new_folder = self.root + f'/{tag}'
+        
+        if not os.path.exists(self.new_folder + '/plots'):
+            os.makedirs(self.new_folder + '/plots')
         
 
-# def unfix(file, refs, labels, tag):
-#     with open(file) as f:
-#         data = f.read()
-#         for ref in refs:
-#             data = data.replace(ref, ref[:-1][:-len(tag)] + '}')
-#         for label in labels:
-#             data = data.replace(label, label[:-1][:-len(tag)] + '}')
-#     with open(file, 'w') as f:
-#         f.write(data)
+        for i, folder in enumerate(self.folders):
+            # fix paths
+            for  file in self.find_tex(folder):
+                with open(file, 'r') as f:
+                    data = f.read()
+                
+                paths = re.findall(r'input{[^}]+', data)
+                for path in paths:
+                    data = data.replace(path, path + '--' + self.chapters[i])
+                
+                with open(file, 'w') as f:
+                    f.write(data.replace(self.chapters[i] + '/', tag + '/'))
+                
+                name, ext = file[:-4], file[-4:]
+                new_file = name + '--' + self.chapters[i] + ext
+                shutil.move(file, new_file.replace(self.chapters[i] + '/', tag + '/'))
+
+            for file in self.find_img(folder):
+                shutil.move(file, file.replace(self.chapters[i] + '/', tag + '/'))
+
+            shutil.rmtree(folder)
+        
+        shutil.move(self.root + '/ref-combined.bib', self.new_folder + '/ref-combined.bib')
+
+            
+
+        
+    
+    # def add_index(self, files, index):
+    #     new_files = []
+    #     for file in files:
+    #         name, ext = file[:-4], file[-4:]
+    #         new_files.append(name + '_' + str(index) + ext)
+    #     return new_files
+    
+    # def move_new_files(self, files, new_folder, index):
+    #     if not os.path.exists(new_folder):
+    #         os.makedirs(new_folder)
+    #     for file in files:
+    #         shutil.move(file, new_folder + f'/{self.add_index([os.path.basename(file)], index)[0]}')
 
 
-# def fixall(folder, ext, tag):
-#     files = find_files(folder, ext)
-#     for file in files:
-#         refs, labels = search_file(file)
-#         fix(file, refs, labels, tag)
+    # def move_new_imgs(self, folder, new_folder, index):
+    #     if not os.path.exists(new_folder + '/plots'):
+    #         os.makedirs(new_folder + '/plots')
+        
+    #     for file in os.listdir(folder + '/plots'):
+    #         file = os.path.basename(file)
+    #         img_path = folder + '/plots/' + file
+    #         new_path = new_folder + '/plots/' + self.add_index([file], index)[0]
+    #         # print(img_path, new_path)
+    #         shutil.move(img_path, new_path)
 
-# def unfixall(folder, ext, tag):
-#     files = find_files(folder, ext)
-#     for file in files:
-#         refs, labels = search_file(file)
-#         unfix(file, refs, labels, tag)
 
-# # file = find_files(folder, 'tex')[-1]
-# # refs, labels = search_file(file)
-# # print(refs)
-# # print(labels)
-# # unfix(file, refs, labels, '-chapter3')
-
-# unfixall(folder, 'tex', '--ch3')
+    # def fix_paths(self, file, tex_paths, img_paths, tag):
+    #     with open(file, 'r') as f:
+    #         data = f.read()
+    #         for path in tex_paths:
+    #             left, right = path.index('{'), path.index('}')
+    #             file_ = os.path.basename(path[left+1:right])
+    #             data = data.replace(path, path[:left+1] + tag + '/' + file_ + path[right:])
+    #         for path in img_paths:
+    #             left, right = path.index('{'), path.index('}')
+    #             new_path = self.get_new_img_ref(path[left+1:right], tag)
+    #             new_path = path[:left+1] + new_path + path[right:]
+    #             # print(path, new_path)
+    #             data = data.replace(path, new_path)
+ 
