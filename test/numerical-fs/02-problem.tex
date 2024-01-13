@@ -1,0 +1,24 @@
+
+\subsection{The nonlinear filtering problem} The filtering problem studied in this chapter can be stated as follows. The model state $x_k \in \mathbb{R}^d$ satisfies a discrete-time deterministic dynamical system $f: \mathbb{R}^d \to \mathbb{R}^d$ and measurement $y_k \in \mathbb{R}^q$ is related to the model state by the observation operator (linear throughout this chapter) $H: \mathbb{R}^d \to \mathbb{R}^q$ for $k = 0, 1, \dots$, as follows:
+\begin{align}
+% &x_0 \sim \mu \label{eq-prior--numerical-fs}\\
+&x_{k+1} = f(x_k), \quad x_0 \sim \mu, \label{eq-state--numerical-fs}\\
+&y_{k} = Hx_k + \eta_k, \quad  \label{eq-obs--numerical-fs}
+\end{align}
+where $\mu$ is the initial distribution of the model state $x_0$ at time 0,  and $\eta_k \sim \mathcal{N}(0_q, \sigma^2I_q)$ are \emph{iid} Gaussian errors in the observation, and are assumed independent of $\mu$. Given observations $y_0, y_1, \cdots, y_n$, the goal of filtering is to estimate the conditional distribution of the model state at time $n$ conditioned on observations up to that time, $\pi_{n}(\mu) := p(x_n|y_{0:n})$. We'll use different numerical algorithms to obtain an estimate, denoted by $\hat\pi_{n}(\mu)$, for the filtering distribution.
+
+\subsection{Filter stability} 
+In practice we often do not know the initial distribution $\mu$. In such a case, one obtains a different distribution, denoted by $\hat\pi_{n}(\nu)$, by using the same set of observations and using the same algorithm, but starting with a different initial condition $\nu$. A measure of robustness of a filtering algorithm is how well it is able to "forget" the initial distribution, which motivates the following definition.
+\begin{defn}[Stability] A numerical filter is said to be stable if given two different initial distributions {$\nu_1, \nu_2$} for $x_0$ in the filtering problem, the following holds
+\begin{align}
+    {\lim_{n\to\infty}\mathbb E[D(\hat\pi_n(\nu_1), \hat\pi_n(\nu_2))]} = 0
+\label{eq-stablaw--numerical-fs} \end{align}
+where $D$ is a distance on $P(\mathbb R^d)$, the space of probability measures on $\mathbb R^d$.
+% Or in the weak sense \cite{reddy2019stability}, the following holds $\forall g \in C_b(\mathbb R^d)$:
+% \begin{align}
+%     \lim_{n\to\infty}\mathbb E\left[\left|\int_{\mathbb R^d} g\,d\hat\pi_n(\mu)- \int_{\mathbb R^d} g\,d\hat\pi_n(\nu)\right|\right] = 0 \,.
+% \end{align}
+\label{def-stab--numerical-fs} \end{defn}
+ Note that the expectation above is taken with respect to observational noise since $\hat\pi_n$ is a random measure whose realizations correspond to observation realizations.
+
+The main aim of this chapter is to study the stability of two popular filtering algorithms, namely the particle filter described in~\ref{ssec-pf--numerical-fs} and the ensemble Kalman filter described in~\ref{ssec-enkf--numerical-fs}, by studying the limit in~\eqref{eq-stablaw--numerical-fs}, where we choose the Wasserstein metric $W_2$ as our distance $D$ on $P(\mathbb R^d)$, for chaotic deterministic dynamical systems which we now describe in~\ref{ssec-models--numerical-fs}.
